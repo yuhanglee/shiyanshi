@@ -27,13 +27,14 @@ extern char buffer[];
 void main(void) {
     int a = 0;
     
-    GPIO_Mode(P6, 2, 1);
-    GPIO_Mode(P6, 3, 1);
-    
+    Uart3Init();
+    EA = 1;
     while (1) {
-        GPIO_SetPin(P6, 2);
-//        Delay500ms();
-//        GPIO_ResetPin(P6, 2);
-//        Delay500ms();
+        Uart3Send('a');
+        Delay500ms();
+        if (wptr != rptr) {
+            Uart3Send(buffer[rptr++]);
+            rptr &= 0x0f;
+        }
     }
 }
