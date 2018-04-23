@@ -1,10 +1,11 @@
-#include "wc_string"
-
+#include "wc_string.h"
+#include "mylib.h"
 
 uint8_t str_len(const int8_t * str) {
     uint8_t len = 0;
     
-    for (len = 0;*str;len++);
+    wc_assert(str == 0);
+    for (len = 0;*str;len++, str++);
     
     return len;
 }
@@ -14,6 +15,8 @@ int8_t str_cmp(const int8_t * str1, const int8_t * str2) {
     uint8_t len2 = str_len(str2);
     uint8_t i;
     
+    wc_assert(str1 == 0);
+    wc_assert(str2 == 0);
     
     if (len1 > len2) {
         return 1;

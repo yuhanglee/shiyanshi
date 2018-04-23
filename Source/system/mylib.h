@@ -3,6 +3,8 @@
 
 #include "stdio.h"
 
+#define DEBUG
+
 typedef unsigned char   uint8_t;
 typedef unsigned int    uint16_t;
 typedef unsigned long   uint32_t;
@@ -17,16 +19,14 @@ typedef int16_t         s16;
 typedef int32_t         s32;
 
 
-
-//#define print(status, format...)        do { printf(status);printf(format);} while (0)
-
-//#define print_debug(format...)          print("[*] debug:\t", format)
-//#define print_info(format...)           print("[-] info:\t", format)
-
+#define print_debug(str)            printf("[*] debug:\t%s\n", str)
+#define print_info(str)             printf("[+] info:\t%s\n", str)
+#define print_warn(str)             printf("[-] warning:\t%s\n", str);
+        
 
 
 #ifdef DEBUG
-    #define wc_assert(n)    do {if (n) printf("%s %d\n", __FILE__, __LINE__);} while (0)
+    #define wc_assert(n)    n?printf("%s %bd\n", __FILE__, __LINE__):0
 #else
     #define wc_assert(n)    
 #endif

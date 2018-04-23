@@ -2,6 +2,7 @@
 #include "mylib.h"
 #include "intrins.h"
 #include "uart.h"
+#include "wc_string.h"
 
 void Delay500ms()		//@11.0592MHz
 {
@@ -25,12 +26,16 @@ extern char rptr;
 extern char buffer[];
 
 void main(void) {
-    int a = 0;
+    uint8_t a = 0;
+    char str[10];
+    char str1[] = "str1";
+    char str2[] = "str2";
     
     Uart3Init();
     EA = 1;
     while (1) {
-        printf("printf ok\n");
+        print_info(str);
+        Delay500ms();
         Delay500ms();
     }
 }
