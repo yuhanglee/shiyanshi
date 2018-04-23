@@ -8,10 +8,14 @@ char wptr;
 char rptr;
 char buffer[16];
 
+
+char putchar(char c) {
+    Uart3Send(c);
+    return c;
+}
+
 void Uart1Isr(void) interrupt 4 using 1 {
-    if (TI) {
-        TI = 0;
-    }
+    
 }
 
 void UartInit(void) {
@@ -23,7 +27,11 @@ void UartInit(void) {
 }
 
 void Uart1Send(char dat) {
+    //EA = 0;
     SBUF = dat;
+    while (!TI);
+    TI = 0;
+    //EA = 1;
 }
 
 void Uart1SendStr(char *p) {

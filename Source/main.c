@@ -30,11 +30,7 @@ void main(void) {
     Uart3Init();
     EA = 1;
     while (1) {
-        Uart3Send('a');
+        printf("printf ok\n");
         Delay500ms();
-        if (wptr != rptr) {
-            Uart3Send(buffer[rptr++]);
-            rptr &= 0x0f;
-        }
     }
 }

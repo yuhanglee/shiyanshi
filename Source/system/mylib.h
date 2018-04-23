@@ -1,6 +1,8 @@
 #ifndef __MYLIB_H__
 #define __MYLIB_H__
 
+#include "stdio.h"
+
 typedef unsigned char   uint8_t;
 typedef unsigned int    uint16_t;
 typedef unsigned long   uint32_t;
@@ -14,7 +16,26 @@ typedef int8_t          s8;
 typedef int16_t         s16;
 typedef int32_t         s32;
 
+
+
+//#define print(status, format...)        do { printf(status);printf(format);} while (0)
+
+//#define print_debug(format...)          print("[*] debug:\t", format)
+//#define print_info(format...)           print("[-] info:\t", format)
+
+
+
+#ifdef DEBUG
+    #define wc_assert(n)    do {if (n) printf("%s %d\n", __FILE__, __LINE__);} while (0)
+#else
+    #define wc_assert(n)    
+#endif
+
+
+
+
 #define FOSC        (24000000UL) // 内部晶振为24MHz，如果需要使用外部的11.0592MHz，则需要对硬件做一些改动
+
 
 
 #define CLEAR_FLAG(flag, num)           (AUXINTIF &= !(##flag##num##IF))
