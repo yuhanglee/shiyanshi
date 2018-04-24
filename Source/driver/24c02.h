@@ -8,7 +8,7 @@
 #define AT24C08		1023
 #define AT24C16		2047
 #define AT24C32		4095
-#define AT24C64	  8191
+#define AT24C64	    8191
 #define AT24C128	16383
 #define AT24C256	32767  
 

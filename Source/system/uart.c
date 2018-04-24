@@ -4,9 +4,9 @@
 #define BRT         (65536 - FOSC / 115200 / 4)
 
 bit busy;
-char wptr;
-char rptr;
-char buffer[16];
+char wptr = 0;
+char rptr = 0;
+char buffer[16] = {0};
 
 
 char putchar(char c) {

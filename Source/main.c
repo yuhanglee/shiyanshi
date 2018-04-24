@@ -3,7 +3,9 @@
 #include "intrins.h"
 #include "uart.h"
 #include "wc_string.h"
-
+#include "command.h"
+#include "string.h"
+#include "24c02.h"
 void Delay500ms()		//@11.0592MHz
 {
 	unsigned char i, j, k;
@@ -26,16 +28,21 @@ extern char rptr;
 extern char buffer[];
 
 void main(void) {
-    uint8_t a = 0;
+    cmd_status a;
     char str[10];
-    char str1[] = "str1";
-    char str2[] = "str2";
     
     Uart3Init();
     EA = 1;
+    while (AT24CXX_Check()) {
+        print_debug("EEPROM check faild");
+    }
     while (1) {
-        print_info(str);
-        Delay500ms();
+        if (wptr != rptr) {
+            a = cmd_exec(cmd_check(buffer));
+            print_info(buffer);
+            wptr = 0;
+            memset(buffer, 0, 16);
+        }
         Delay500ms();
     }
 }

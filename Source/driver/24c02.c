@@ -107,13 +107,14 @@ u32 AT24CXX_ReadLenByte(u16 ReadAddr,u8 Len)
 u8 AT24CXX_Check(void)
 {
 	u8 temp;
-	temp=AT24CXX_ReadOneByte(255);//°¿®π?a??°‰??a?®≤??D°‰AT24CXX	
-	if(temp==0x36)return 0;		   
+	temp=AT24CXX_ReadOneByte(0);//°¿®π?a??°‰??a?®≤??D°‰AT24CXX	
+    printf("%bd\n", temp);
+	if(temp == 0x36)return 0;		   
 	else//??3y¶Ã®≤®∞?°‰?3?®∫??°•¶Ã??®¶??
 	{
-		AT24CXX_WriteOneByte(255,0X36);
-	    temp=AT24CXX_ReadOneByte(255);	  
-		if(temp==0X36)return 0;
+		AT24CXX_WriteOneByte(0,0X36);
+	    temp = AT24CXX_ReadOneByte(0);	  
+		if(temp == 0X36)return 0;
 	}
 	return 1;											  
 }
