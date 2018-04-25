@@ -55,6 +55,10 @@ cmd_code cmd_check(char * cmd_str) {
 cmd_status cmd_exec(cmd_code cmd_e) {
     cmd_status ret = cmd_ErrorFormat;
     switch (cmd_e) {
+        case cmd_Error:
+            printf("cmd code error\n");
+            break;
+        
         case cmd_LcdOff:
             printf("LCD off\n");
             break;

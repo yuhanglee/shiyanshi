@@ -15,6 +15,7 @@ typedef enum {
 
 
 typedef enum {
+    cmd_ErrorCmdCode = -2,
     cmd_ErrorFormat = -1,
     cmd_OK = 0,
 } cmd_status;

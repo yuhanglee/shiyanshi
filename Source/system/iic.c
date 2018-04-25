@@ -8,6 +8,7 @@ sbit SDA=P2^4;
 
 void Delay_us(unsigned int us) {
     int i = 100;
+    (void)us;
     for (;i;i--);
 }
 /**********************************************

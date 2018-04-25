@@ -19,6 +19,16 @@ typedef int16_t         s16;
 typedef int32_t         s32;
 
 
+#define FALSE   0
+#define TRUE    1
+
+#define LOW     0
+#define HIGH    1
+
+#define low     0
+#define high    1
+
+
 #define print_debug(str)            printf("[*] debug:\t%s\n", str)
 #define print_info(str)             printf("[+] info:\t%s\n", str)
 #define print_warn(str)             printf("[-] warning:\t%s\n", str);
@@ -26,7 +36,13 @@ typedef int32_t         s32;
 
 
 #ifdef DEBUG
-    #define wc_assert(n)    n?printf("%s %bd\n", __FILE__, __LINE__):0
+    #define wc_assert(n)    \
+    do {\
+        if (n) {\
+            printf("%s %bd\n", __FILE__, __LINE__);\
+            while (1);\
+        }\
+    } while(0)
 #else
     #define wc_assert(n)    
 #endif
