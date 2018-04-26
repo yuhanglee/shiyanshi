@@ -63,34 +63,34 @@ static void Delay_us(uint16_t us) {
 }
 /***********************Initial code*********************/
 void OLED_Init(void) {
-	Write_IIC_Command(0xAE);   //display off
-	Write_IIC_Command(0x20);	//Set Memory Addressing Mode	
-	Write_IIC_Command(0x10);	//00,Horizontal Addressing Mode;01,Vertical Addressing Mode;10,Page Addressing Mode (RESET);11,Invalid
+	Write_IIC_Command(OLED_CMD_SLEEP);   //display off
+	Write_IIC_Command(OLED_CMD_MEMORY_MODE);	//Set Memory Addressing Mode	
+	Write_IIC_Command(OLED_CMD_MEMORY_MODE_H_ADDR);	//00,Horizontal Addressing Mode;01,Vertical Addressing Mode;10,Page Addressing Mode (RESET);11,Invalid
 	Write_IIC_Command(0xb0);	//Set Page Start Address for Page Addressing Mode,0-7
-	Write_IIC_Command(0xc8);	//Set COM Output Scan Direction
+	Write_IIC_Command(OLED_CMD_COM_OUT_SCAN_DIR_NOR);	//Set COM Output Scan Direction
 	Write_IIC_Command(0x00);//---set low column address
 	Write_IIC_Command(0x10);//---set high column address
 	Write_IIC_Command(0x40);//--set start line address
-	Write_IIC_Command(0x81);//--set contrast control register
+	Write_IIC_Command(OLED_CMD_CONTRAST);//--set contrast control register
 	Write_IIC_Command(0x7f);
-	Write_IIC_Command(0xa1);//--set segment re-map 0 to 127
-	Write_IIC_Command(0xa6);//--set normal display
-	Write_IIC_Command(0xa8);//--set multiplex ratio(1 to 64)
+	Write_IIC_Command(OLED_CMD_SET_SEG_NOR);//--set segment re-map 0 to 127
+	Write_IIC_Command(OLED_CMD_DSP_NOR);//--set normal display
+	Write_IIC_Command(OLED_CMD_MUX_RATIO);//--set multiplex ratio(1 to 64)
 	Write_IIC_Command(0x3F);//
-	Write_IIC_Command(0xa4);//0xa4,Output follows RAM content;0xa5,Output ignores RAM content
-	Write_IIC_Command(0xd3);//-set display offset
+	Write_IIC_Command(OLED_CMD_DSP_ON_RAM);//0xa4,Output follows RAM content;0xa5,Output ignores RAM content
+	Write_IIC_Command(OLED_CMD_SET_DSP_OFFSET);//-set display offset
 	Write_IIC_Command(0x00);//-not offset
-	Write_IIC_Command(0xd5);//--set display clock divide ratio/oscillator frequency
-	Write_IIC_Command(0xf0);//--set divide ratio
-	Write_IIC_Command(0xd9);//--set pre-charge period
-	Write_IIC_Command(0x22); //
-	Write_IIC_Command(0xda);//--set com pins hardware configuration
-	Write_IIC_Command(0x12);
-	Write_IIC_Command(0xdb);//--set vcomh
-	Write_IIC_Command(0x20);//0x20,0.77xVcc
+	Write_IIC_Command(OLED_CMD_SET_DIV_OSC_FREQ);//--set display clock divide ratio/oscillator frequency
+	Write_IIC_Command(OLED_CMD_SET_DIV_OSC_FREQ_VALUE(OLED_CMD_SET_DIV_VALUE(0) | OLED_CMD_SET_OSC_FREQ_VALUE(0x0f)));//--set divide ratio
+	Write_IIC_Command(OLED_CMD_SET_PRE_CHARGE_PERIOD);//--set pre-charge period
+	Write_IIC_Command(OLED_CMD_SET_PRE_CHARGE_PERIOD_VALUE(OLED_CMD_SET_PRE_CHARGE_PERIOD_1_VALUE(2) | OLED_CMD_SET_PRE_CHARGE_PERIOD_2_VALUE(2))); //
+	Write_IIC_Command(OLED_CMD_SET_COM_PINS);//--set com pins hardware configuration
+	Write_IIC_Command(OLED_CMD_SET_COM_PINS_VALUE(OLED_CMD_SET_COM_PINS_ALTER | OLED_CMD_SET_COM_PINS_RL_NOR));
+	Write_IIC_Command(OLED_CMD_SET_VCOMH_DESELECT_LEVEL);//--set vcomh
+	Write_IIC_Command(OLED_CMD_SET_VCOMH_DESELECT_LEVEL_0_77_VCC);//0x20,0.77xVcc
 	Write_IIC_Command(0x8d);//--set DC-DC enable
 	Write_IIC_Command(0x14);//
-	Write_IIC_Command(0xaf);//--turn on oled panel 
+	Write_IIC_Command(OLED_CMD_SLEEP_OFF);//--turn on oled panel 
 }
 /*******************ascii**********************/
 static const uint8_t ascii[][ASCII_SIZE_Y*ASCII_SIZE_X/8] = {
@@ -248,7 +248,7 @@ static void Write_IIC_Byte(uint8_t IIC_Byte) {
 **********************************************/
 static void Write_IIC_Command(uint8_t IIC_Command) {
    IIC_Start();
-   Write_IIC_Byte(0x78);            //Slave address,SA0=0
+   Write_IIC_Byte(OLED_WRITE);            //Slave address,SA0=0
    Write_IIC_Byte(0x00);			//write command
    Write_IIC_Byte(IIC_Command); 
    IIC_Stop();
@@ -258,12 +258,28 @@ static void Write_IIC_Command(uint8_t IIC_Command) {
 **********************************************/
 static void Write_IIC_Data(uint8_t IIC_Data) {
    IIC_Start();
-   Write_IIC_Byte(0x78);			
+   Write_IIC_Byte(OLED_WRITE);			
    Write_IIC_Byte(0x40);			//write data
    Write_IIC_Byte(IIC_Data);
    IIC_Stop();
 }
 
+void OLED_ScrollLeft(uint8_t StartPage, uint8_t EndPage, uint8_t Franes) {
+    Write_IIC_Command(OLED_CMD_SCROLL_OFF);
+    Write_IIC_Command(OLED_CMD_SCROLL_H_R);
+    Write_IIC_Command(0x00);
+    Write_IIC_Command(StartPage);
+    Write_IIC_Command(Franes);
+    Write_IIC_Command(EndPage);
+    Write_IIC_Command(0x00);
+    Write_IIC_Command(0xff);
+    
+    Write_IIC_Command(OLED_CMD_SCROLL_ON);
+} 
+
+void OLED_ScrollStatus(uint8_t status) {
+    Write_IIC_Command(OLED_CMD_SCROLL_OFF | status);
+}
 //更新显存到LCD		 
 void OLED_Refresh_Gram(void) {
 	uint8_t i,n;		    
@@ -271,6 +287,7 @@ void OLED_Refresh_Gram(void) {
 		Write_IIC_Command(0xb0+i);    //设置页地址（0~7）
 		Write_IIC_Command(0x00);      //设置显示位置—列低地址
 		Write_IIC_Command(0x10);      //设置显示位置—列高地址   
+
 		for (n = 0;n < OLED_X_MAX * ASCII_SIZE_X;n++) {
             Write_IIC_Data(OLED_GRAM[n][i]);
         }            
@@ -283,7 +300,7 @@ void OLED_Refresh_Gram(void) {
 void OLED_DisplayChar(uint8_t x, uint8_t y, uint8_t ch) {
     uint8_t i;
     uint8_t n = x << 3; // x*8
-    uint8_t index = ch - 0x20;
+    uint8_t index = ch - ' ';
     
     
     wc_assert(x >= OLED_X_MAX);

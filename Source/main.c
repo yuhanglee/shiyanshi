@@ -9,8 +9,17 @@
 #include "oled.h"
 #include "max485.h"
 
+static void Delay_ms(uint16_t Del_1ms) {
+	uint8_t j;
+    
+	while (Del_1ms--) {	
+		for (j  =0;j < 123;j++) {
+        
+        }
+	}
+}
 
-void Delay500ms()		//@11.0592MHz
+static void Delay500ms()		//@11.0592MHz
 {
 	unsigned char i, j, k;
 
@@ -33,13 +42,13 @@ extern char buffer[];
 
 void main(void) {
     char str[10] = "hello";
-    uint8_t i = 0;
+    uint8_t i = 0x20, j = 0, c = 0;
     
     
     UartInit();
     
-    Uart2Init();
-    Uart4Init();
+//    Uart2Init();
+//    Uart4Init();
     
     EA = 1;
 //    while (1) {
@@ -54,13 +63,25 @@ void main(void) {
 //        Delay500ms();
 //    }
     OLED_Init();
+//    OLED_DisplayStr(0, 0, "45sss");
+//    OLED_DisplayStr(0, 1, "45sss");
+//    OLED_DisplayStr(0, 2, "45sss");
+//    OLED_DisplayStr(0, 3, "45sss");
+//    OLED_Refresh_Gram();
+    OLED_DisplayChar(0, 0, '7');
+    
+    OLED_Refresh_Gram();
+    OLED_ScrollLeft(OLED_CMD_SCROLL_PAGE_0, OLED_CMD_SCROLL_PAGE_1, OLED_CMD_SCROLL_2_FRANES);
     while (1) {
-        OLED_DisplayStr(1, 1, str);
-        Delay500ms();
-        OLED_Refresh_Gram();
-        OLED_Clear();
-        Delay500ms();
-        OLED_Refresh_Gram();
+//        if (rptr != wptr)
+//        {
+//            buffer[wptr] = 0;
+//            OLED_DisplayStr((i&0x0f), (i >> 4)&0x03, buffer);
+//            wptr = 0;
+//        }
+//        Uart2Send(i);
+        i = i<8?i+1:0;
+        Delay_ms(5000);
     }
 //    while (AT24CXX_Check()) {
 //        print_debug("EEPROM check faild");
