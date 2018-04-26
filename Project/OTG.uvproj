@@ -403,6 +403,11 @@
               <FileType>1</FileType>
               <FilePath>..\Source\driver\oled.c</FilePath>
             </File>
+            <File>
+              <FileName>max485.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Source\driver\max485.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

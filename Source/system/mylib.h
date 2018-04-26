@@ -29,9 +29,9 @@ typedef int32_t         s32;
 #define high    1
 
 
-#define print_debug(str)            printf("[*] debug:\t%s\n", str)
-#define print_info(str)             printf("[+] info:\t%s\n", str)
-#define print_warn(str)             printf("[-] warning:\t%s\n", str);
+#define print_debug(str)            printf("[*] debug:\t%s\r\n", str)
+#define print_info(str)             printf("[+] info:\t%s\r\n", str)
+#define print_warn(str)             printf("[-] warning:\t%s\r\n", str);
         
 
 

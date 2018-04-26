@@ -14,7 +14,7 @@
 //[5]0 1 2 3 ... 127	
 //[6]0 1 2 3 ... 127	
 //[7]0 1 2 3 ... 127 			   
-uint8_t OLED_GRAM[128][8] = {0xff};
+uint8_t OLED_GRAM[128][8] = {0};
 
 /*************Pin Define***************/
 sbit SCL=P7^7;
@@ -267,7 +267,7 @@ static void Write_IIC_Data(uint8_t IIC_Data) {
 //更新显存到LCD		 
 void OLED_Refresh_Gram(void) {
 	uint8_t i,n;		    
-	for (i = 0;i < OLED_Y_MAX;i++) {  
+	for (i = 0;i < OLED_Y_MAX*ASCII_SIZE_Y/8;i++) {  
 		Write_IIC_Command(0xb0+i);    //设置页地址（0~7）
 		Write_IIC_Command(0x00);      //设置显示位置—列低地址
 		Write_IIC_Command(0x10);      //设置显示位置—列高地址   
@@ -290,8 +290,8 @@ void OLED_DisplayChar(uint8_t x, uint8_t y, uint8_t ch) {
     wc_assert(y >= OLED_Y_MAX);
     
     for (i = 0;i < ASCII_SIZE_Y / 2;++i) {
-        OLED_GRAM[n + i][y] = ascii[index][i];
-        OLED_GRAM[n + i][y + 1] = ascii[index][i + ASCII_SIZE_Y / 2];
+        OLED_GRAM[n + i][y*2] = ascii[index][i];
+        OLED_GRAM[n + i][y*2 + 1] = ascii[index][i + ASCII_SIZE_Y / 2];
     }
 }
 void OLED_DisplayStr(uint8_t x, uint8_t y, uint8_t * str) {
@@ -304,4 +304,14 @@ void OLED_DisplayStr(uint8_t x, uint8_t y, uint8_t * str) {
         OLED_DisplayChar(x+i, y, str[i]);
     }
     
+}
+
+void OLED_Clear(void) {
+    uint8_t i, j = 0;
+    
+    for (i = 0;i < OLED_X_MAX * ASCII_SIZE_X;++i) {
+        for (j = 0;j < OLED_Y_MAX * ASCII_SIZE_Y / 8;++j) {
+            OLED_GRAM[i][j] = 0x00;
+        }
+    }
 }

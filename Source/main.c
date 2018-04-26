@@ -7,7 +7,7 @@
 #include "string.h"
 #include "24c02.h"
 #include "oled.h"
-
+#include "max485.h"
 
 
 void Delay500ms()		//@11.0592MHz
@@ -36,12 +36,29 @@ void main(void) {
     uint8_t i = 0;
     
     
-    Uart3Init();
-    EA = 1;
+    UartInit();
     
+    Uart2Init();
+    Uart4Init();
+    
+    EA = 1;
+//    while (1) {
+//            print_info("EE");
+//        if (rptr != wptr)
+//        {
+//            buffer[wptr] = 0;
+//            print_info("L");
+//            wptr = 0;
+//        }
+//        Uart2Send('a');
+//        Delay500ms();
+//    }
     OLED_Init();
     while (1) {
-        OLED_DisplayStr(0, 0, str);
+        OLED_DisplayStr(1, 1, str);
+        Delay500ms();
+        OLED_Refresh_Gram();
+        OLED_Clear();
         Delay500ms();
         OLED_Refresh_Gram();
     }
