@@ -21,6 +21,18 @@
 #define OLED_CMD_SCROLL_PAGE_6          0X06    // page6   
 #define OLED_CMD_SCROLL_PAGE_7          0X07    // page7
 
+#define IS_PAGE(page)                   (\
+                                            OLED_CMD_SCROLL_PAGE_0 == page || \
+                                            OLED_CMD_SCROLL_PAGE_1 == page || \
+                                            OLED_CMD_SCROLL_PAGE_2 == page || \
+                                            OLED_CMD_SCROLL_PAGE_3 == page || \
+                                            OLED_CMD_SCROLL_PAGE_4 == page || \
+                                            OLED_CMD_SCROLL_PAGE_5 == page || \
+                                            OLED_CMD_SCROLL_PAGE_6 == page || \
+                                            OLED_CMD_SCROLL_PAGE_7 == page \
+                                        )
+
+
 #define OLED_CMD_SCROLL_5_FRANES        0x00    // 5 frames
 #define OLED_CMD_SCROLL_64_FRANES       0x01    // 64 frames
 #define OLED_CMD_SCROLL_128_FRANES      0x02    // 128 frames
@@ -30,11 +42,23 @@
 #define OLED_CMD_SCROLL_25_FRANES       0x06    // 25 frames
 #define OLED_CMD_SCROLL_2_FRANES        0x07    // 2 frames
 
+#define IS_FRANES(Franes)               (\
+                                            OLED_CMD_SCROLL_5_FRANES == Franes || \
+                                            OLED_CMD_SCROLL_64_FRANES == Franes || \
+                                            OLED_CMD_SCROLL_128_FRANES == Franes || \
+                                            OLED_CMD_SCROLL_256_FRANES == Franes || \
+                                            OLED_CMD_SCROLL_3_FRANES == Franes || \
+                                            OLED_CMD_SCROLL_4_FRANES == Franes || \
+                                            OLED_CMD_SCROLL_25_FRANES == Franes || \
+                                            OLED_CMD_SCROLL_2_FRANES == Franes\
+                                        )
+
 #define OLED_ADDR       0x78        // 0x78 0x7A都可以
 #define OLED_WRITE      OLED_ADDR
 #define OLED_READ       OLED_ADDR+1
 
 #define OLED_CMD_CONTRAST           0x81    // 设置对比度  81H xxH  对比度随着值的增加而增加
+#define OLED_CMD_CONTRAST_VALUE(v)  (v) 
 #define OLED_CMD_DSP_ON_RAM         0xA4    // 显示开，且恢复RAM内容
 #define OLED_CMD_DSP_ON             0xA5    // 显示开，不恢复RAM内容
 #define OLED_CMD_DSP_NOR            0xA6    // 正常显示
@@ -46,6 +70,7 @@
                                             // y:滚屏的时间间隔(0-7) z:结束页地址(0-7, z >= x)
 #define OLED_CMD_SCROLL_H_L         0x27    // 水平想左滚动
 #if defined OLED_CMD_SCROLL_H_R || defined OLED_CMD_SCROLL_H_L   
+    #define IS_DIRECTION(d)         ((OLED_CMD_SCROLL_H_R == d) || (OLED_CMD_SCROLL_H_L == d))
 #endif
 
 #define OLED_CMD_SCROLL_V_R         0x29    // 垂直向右滚动 29H 00H 0xH 0yH 0zH iiH x:开始页地址(0-7) 
@@ -86,8 +111,8 @@
 #define OLED_CMD_COM_OUT_SCAN_DIR_NOR   0xC0    // 扫描方式从com0-comN
 #define OLED_CMD_COM_OUT_SCAN_DIR_REMAP 0xC8    // 扫描方式从comN-com0 上下镜像
 
-#define OLED_CMD_SET_DSP_OFFSET         0xD3    // 设置垂直偏移量 D3H xxH  xx: 垂直偏移量(0-63)
-
+#define OLED_CMD_SET_DSP_OFFSET          0xD3    // 设置垂直偏移量 D3H xxH  xx: 垂直偏移量(0-63)
+#define OLED_CMD_SET_DSP_OFFSET_VALUE(v) (v)
 #define OLED_CMD_SET_COM_PINS           0xDA    // 设置列引脚硬件配置 DAH x2H    x: 模式选择(0x00-0x0f)
 #define OLED_CMD_SET_COM_PINS_SEQU      0x00    // 顺序引脚配置
 #define OLED_CMD_SET_COM_PINS_ALTER     0x10    // 替代引脚配置
@@ -112,11 +137,32 @@
 
 #define OLED_CMD_NOP                    0xE3    // 无操作
 
+#define OLED_CMD_SET_CHARGE_PUMP        0x8D    // 电荷泵设置    8DH 1xH x:0 关闭  4:开启
+#define OLED_CMD_SET_CHARGE_PUMP_ON     0x14    // 开启
+#define OLED_CMD_SET_CHARGE_PUMP_OFF    0x10    // 关闭
+
+
+
+
+
+
+
+
+
+#define OLED_ScrollLeft(StartPage, EndPage, Franes)   \
+            OLED_Scroll(OLED_CMD_SCROLL_H_L, StartPage, EndPage, Franes)
+#define OLED_ScrollRight(StartPage, EndPage, Franes)   \
+            OLED_Scroll(OLED_CMD_SCROLL_H_R, StartPage, EndPage, Franes)
+
+
+
+
+
 void OLED_Init(void);
 void OLED_Refresh_Gram(void);
 void OLED_Clear(void);
 void OLED_DisplayChar(uint8_t x, uint8_t y, uint8_t ch);
 void OLED_DisplayStr(uint8_t x, uint8_t y, uint8_t * str);
-void OLED_ScrollLeft(uint8_t StartPage, uint8_t EndPage, uint8_t Franes);
-void OLED_ScrollStatus(uint8_t status);
+void OLED_Scroll(uint8_t Direction, uint8_t StartPage, uint8_t EndPage, uint8_t Franes);
+void OLED_ScrollUp(uint8_t StartPage, uint8_t EndPage, uint8_t Franes);
 #endif

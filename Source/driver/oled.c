@@ -65,21 +65,21 @@ static void Delay_us(uint16_t us) {
 void OLED_Init(void) {
 	Write_IIC_Command(OLED_CMD_SLEEP);   //display off
 	Write_IIC_Command(OLED_CMD_MEMORY_MODE);	//Set Memory Addressing Mode	
-	Write_IIC_Command(OLED_CMD_MEMORY_MODE_H_ADDR);	//00,Horizontal Addressing Mode;01,Vertical Addressing Mode;10,Page Addressing Mode (RESET);11,Invalid
-	Write_IIC_Command(0xb0);	//Set Page Start Address for Page Addressing Mode,0-7
+	Write_IIC_Command(OLED_CMD_MEMORY_MODE_P_ADDR);	//00,Horizontal Addressing Mode;01,Vertical Addressing Mode;10,Page Addressing Mode (RESET);11,Invalid
+	Write_IIC_Command(OLED_CMD_SET_PAGE_START_ADDR(OLED_CMD_SCROLL_PAGE_0));	//Set Page Start Address for Page Addressing Mode,0-7
 	Write_IIC_Command(OLED_CMD_COM_OUT_SCAN_DIR_NOR);	//Set COM Output Scan Direction
-	Write_IIC_Command(0x00);//---set low column address
-	Write_IIC_Command(0x10);//---set high column address
-	Write_IIC_Command(0x40);//--set start line address
+	Write_IIC_Command(OLED_CMD_SET_LOW_ADDR(OLED_CMD_SCROLL_PAGE_0));//---set low column address
+	Write_IIC_Command(OLED_CMD_SET_HIGH_ADDR(OLED_CMD_SCROLL_PAGE_0));//---set high column address
+	Write_IIC_Command(OLED_CMD_SET_DISPLAY_START_LINE(0));//--set start line address
 	Write_IIC_Command(OLED_CMD_CONTRAST);//--set contrast control register
-	Write_IIC_Command(0x7f);
+	Write_IIC_Command(OLED_CMD_CONTRAST_VALUE(0x7f));
 	Write_IIC_Command(OLED_CMD_SET_SEG_NOR);//--set segment re-map 0 to 127
 	Write_IIC_Command(OLED_CMD_DSP_NOR);//--set normal display
 	Write_IIC_Command(OLED_CMD_MUX_RATIO);//--set multiplex ratio(1 to 64)
-	Write_IIC_Command(0x3F);//
+	Write_IIC_Command(OLED_CMD_MUX_RATIO_VALUE(0x3F));//
 	Write_IIC_Command(OLED_CMD_DSP_ON_RAM);//0xa4,Output follows RAM content;0xa5,Output ignores RAM content
 	Write_IIC_Command(OLED_CMD_SET_DSP_OFFSET);//-set display offset
-	Write_IIC_Command(0x00);//-not offset
+	Write_IIC_Command(OLED_CMD_SET_DSP_OFFSET_VALUE(0x00));//-not offset
 	Write_IIC_Command(OLED_CMD_SET_DIV_OSC_FREQ);//--set display clock divide ratio/oscillator frequency
 	Write_IIC_Command(OLED_CMD_SET_DIV_OSC_FREQ_VALUE(OLED_CMD_SET_DIV_VALUE(0) | OLED_CMD_SET_OSC_FREQ_VALUE(0x0f)));//--set divide ratio
 	Write_IIC_Command(OLED_CMD_SET_PRE_CHARGE_PERIOD);//--set pre-charge period
@@ -88,8 +88,8 @@ void OLED_Init(void) {
 	Write_IIC_Command(OLED_CMD_SET_COM_PINS_VALUE(OLED_CMD_SET_COM_PINS_ALTER | OLED_CMD_SET_COM_PINS_RL_NOR));
 	Write_IIC_Command(OLED_CMD_SET_VCOMH_DESELECT_LEVEL);//--set vcomh
 	Write_IIC_Command(OLED_CMD_SET_VCOMH_DESELECT_LEVEL_0_77_VCC);//0x20,0.77xVcc
-	Write_IIC_Command(0x8d);//--set DC-DC enable
-	Write_IIC_Command(0x14);//
+	Write_IIC_Command(OLED_CMD_SET_CHARGE_PUMP);//--set DC-DC enable
+	Write_IIC_Command(OLED_CMD_SET_CHARGE_PUMP_ON);//
 	Write_IIC_Command(OLED_CMD_SLEEP_OFF);//--turn on oled panel 
 }
 /*******************ascii**********************/
@@ -264,22 +264,23 @@ static void Write_IIC_Data(uint8_t IIC_Data) {
    IIC_Stop();
 }
 
-void OLED_ScrollLeft(uint8_t StartPage, uint8_t EndPage, uint8_t Franes) {
+void OLED_Scroll(uint8_t Direction, uint8_t StartPage, uint8_t EndPage, uint8_t Franes) {
+    wc_assert(IS_DIRECTION(Direction));
+    wc_assert(IS_PAGE(StartPage));
+    wc_assert(IS_PAGE(EndPage));
+    wc_assert(IS_FRANES(Franes));
+    
     Write_IIC_Command(OLED_CMD_SCROLL_OFF);
-    Write_IIC_Command(OLED_CMD_SCROLL_H_R);
+    Write_IIC_Command(Direction);
     Write_IIC_Command(0x00);
     Write_IIC_Command(StartPage);
     Write_IIC_Command(Franes);
     Write_IIC_Command(EndPage);
     Write_IIC_Command(0x00);
     Write_IIC_Command(0xff);
-    
     Write_IIC_Command(OLED_CMD_SCROLL_ON);
 } 
 
-void OLED_ScrollStatus(uint8_t status) {
-    Write_IIC_Command(OLED_CMD_SCROLL_OFF | status);
-}
 //¸üÐÂÏÔ´æµ½LCD		 
 void OLED_Refresh_Gram(void) {
 	uint8_t i,n;		    
@@ -303,8 +304,8 @@ void OLED_DisplayChar(uint8_t x, uint8_t y, uint8_t ch) {
     uint8_t index = ch - ' ';
     
     
-    wc_assert(x >= OLED_X_MAX);
-    wc_assert(y >= OLED_Y_MAX);
+    wc_assert(x < OLED_X_MAX);
+    wc_assert(y < OLED_Y_MAX);
     
     for (i = 0;i < ASCII_SIZE_Y / 2;++i) {
         OLED_GRAM[n + i][y*2] = ascii[index][i];
@@ -315,8 +316,8 @@ void OLED_DisplayStr(uint8_t x, uint8_t y, uint8_t * str) {
     uint8_t len = str_len(str);
     uint8_t i;
     
-    wc_assert(x >= OLED_X_MAX);
-    wc_assert(y >= OLED_Y_MAX);
+    wc_assert(x < OLED_X_MAX);
+    wc_assert(y < OLED_Y_MAX);
     for (i = 0;(i < len) && ((x + i) < OLED_X_MAX);++i) {
         OLED_DisplayChar(x+i, y, str[i]);
     }

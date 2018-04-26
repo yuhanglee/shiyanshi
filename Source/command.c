@@ -41,7 +41,7 @@ cmd_code cmd_check(char * cmd_str) {
     int8_t i;
     uint16_t hash;
     
-    wc_assert(cmd_str == 0);
+    wc_assert(cmd_str != 0);
     hash = hash_calc(cmd_str, str_len(cmd_str));
     for (i = 0;i < CMDSTR_SIZE;++i) {
         if (CMDSTR[i].hash == hash) {

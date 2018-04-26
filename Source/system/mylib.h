@@ -2,6 +2,7 @@
 #define __MYLIB_H__
 
 #include "stdio.h"
+#include "stc8.h"
 
 #define DEBUG
 
@@ -38,7 +39,7 @@ typedef int32_t         s32;
 #ifdef DEBUG
     #define wc_assert(n)    \
     do {\
-        if (n) {\
+        if (!(n)) {\
             printf("%s %bd\n", __FILE__, __LINE__);\
             while (1);\
         }\

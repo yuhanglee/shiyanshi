@@ -68,10 +68,13 @@ void main(void) {
 //    OLED_DisplayStr(0, 2, "45sss");
 //    OLED_DisplayStr(0, 3, "45sss");
 //    OLED_Refresh_Gram();
-    OLED_DisplayChar(0, 0, '7');
+    OLED_DisplayChar(0, 0, '1');
+    OLED_DisplayChar(0, 1, '2');
+    OLED_DisplayChar(0, 2, '3');
+    OLED_DisplayChar(0, 3, '4');
     
     OLED_Refresh_Gram();
-    OLED_ScrollLeft(OLED_CMD_SCROLL_PAGE_0, OLED_CMD_SCROLL_PAGE_1, OLED_CMD_SCROLL_2_FRANES);
+    OLED_ScrollLeft(OLED_CMD_SCROLL_PAGE_4, OLED_CMD_SCROLL_PAGE_7, OLED_CMD_SCROLL_2_FRANES);
     while (1) {
 //        if (rptr != wptr)
 //        {
