@@ -8,6 +8,7 @@
 #include "24c02.h"
 #include "oled.h"
 #include "max485.h"
+#include "timer.h"
 
 static void Delay_ms(uint16_t Del_1ms) {
 	uint8_t j;
@@ -49,28 +50,37 @@ void SystemInit(void) {
 
 void main(void) {
     char str[10] = "hello";
-    uint8_t i = 0x20, j = 0, c = 0;
+    uint8_t i = 0x20, j = 0;
+    uint16_t c = 0;
+    Timer t3;
     
     SystemInit();
     
     UartInit();
     
-    Uart2Init();
-    Uart4Init();
-    
+//    Uart2Init();
+//    Uart4Init();
+    t3.Type = TIMER_TYPE_TIMER;
+	t3.Mode = TIMER_Mode_0;
+	t3.FreqDiv = TIMER_FREQ_DIV_1;
+	t3.Count = 10000;
+    Timer3_Init();
     EA = 1;
-    while (1) {
-        if (rptr != wptr)
-        {
-            buffer[wptr] = 0;
-            print_info(buffer);
-            wptr = 0;
-        }
-        Uart2Send('a');
-        Delay500ms();
-    }
+//    while (1) {
+//        if (rptr != wptr)
+//        {
+//            buffer[wptr] = 0;
+//            print_info(buffer);
+//            wptr = 0;
+//        }
+//        Uart2Send('a');
+//        Delay500ms();
+//    }
     OLED_Init();
+    OLED_DisplayStr(0, 0, "shangshu");
+    OLED_DisplayStr(0, 1, "iLab");
     OLED_Refresh_Gram();
+    
     while (1) {
 //        if (rptr != wptr)
 //        {
@@ -81,7 +91,9 @@ void main(void) {
             print_info("EE");
 //        Uart2Send(i);
         i = i<8?i+1:0;
-        Delay_ms(5000);
+        Delay500ms();
+        t3_1 = 100;
+        while (!t3_1);
     }
 //    while (AT24CXX_Check()) {
 //        print_debug("EEPROM check faild");

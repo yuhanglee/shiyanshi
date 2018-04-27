@@ -404,9 +404,9 @@
               <FilePath>..\Source\driver\oled.c</FilePath>
             </File>
             <File>
-              <FileName>max485.c</FileName>
+              <FileName>timer.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Source\driver\max485.c</FilePath>
+              <FilePath>..\Source\system\timer.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -51,7 +51,7 @@ typedef int32_t         s32;
 
 
 
-#define FOSC        (24000000UL) // 内部晶振为24MHz，如果需要使用外部的11.0592MHz，则需要对硬件做一些改动
+#define FOSC        (11059200UL) // 内部晶振为24MHz，如果需要使用外部的11.0592MHz，则需要对硬件做一些改动
 
 
 
@@ -194,21 +194,29 @@ do {\
 
 /* T0_CT 如果想恢复定时器功能，需要将复位寄存器，重新初始化 */
 #define TIMER01_COUNT(x)                TMOD |= T##x##_CT
+#define TIMER01_GET_COUNT(x)			TMOD & (~(T##x##_CT))
 
 #define TIMER0_COUNT()                  TIMER01_COUNT(0)
 #define TIMER1_COUNT()                  TIMER01_COUNT(1)
 
+#define TIMER0_GET_COUNT()				TIMER01_GET_COUNT(0)
+#define TIMER1_GET_COUNT()				TIMER01_GET_COUNT(1)
+
 #define TIMER2_COUNT()                  AUXR |= T2_CT
 
-#define TIMER34_COUNT(x)                T4T3M |= (T##x##CT)
+#define TIMER34_COUNT(x)                T4T3M |= (T##x##_CT)
 
 #define TIMER3_COUNT(x)                 TIMER34_COUNT(3)
 #define TIMER4_COUNT(x)                 TIMER34_COUNT(4)
 
 /* MODE 模式共分为4种，需要看手册 */
 #define TIMER01_MODE(x, num)            do {\
-                                            T##x##M0 = (num) & 0x01;\
-                                            T##x##M1 = ((num) >> 1) & 0x1;\
+                                            TMOD = ((num) & 0x01) ? \
+												TMOD | (T##x##_M0) : \
+												TMOD & ~(T##x##_M0);\
+											TMOD = (((num) >> 1) & 0x1) ? \
+												TMOD | (T##x##_M1) : \
+												TMOD & ~(T##x##_M1);\
                                         } while (0)
 
 #define TIMER0_MODE(num)                TIMER01_MODE(0, num)

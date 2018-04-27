@@ -1,5 +1,6 @@
 #include "uart.h"
 #include "stc8.h"
+#include "timer.h"
 
 #define BRT         (65536 - FOSC / 115200 / 4)
 
@@ -21,9 +22,8 @@ void Uart1Isr(void) interrupt 4 using 1 {
 
 void UartInit(void) {
     SCON |= 0x50;
-    T2L = BRT &0xff;
-    T2H = (BRT >> 8) & 0xff;
-    AUXR |= 0x15;
+    Timer2_Init(BRT);
+    AUXR |= 0x01; // 选择定时器2作为波特率发生器
     ES = 1;
 }
 
@@ -52,9 +52,7 @@ void Uart2Isr() interrupt 8 using 1
 void Uart2Init()
 {
     S2CON |= 0x50;
-    T2L = BRT &0xff;
-    T2H = (BRT >> 8) & 0xff;
-    AUXR |= 0x14;
+    Timer2_Init(BRT);
     IE2 |= 0x01;
 }
 
@@ -85,9 +83,7 @@ void Uart3Isr() interrupt 17 using 1
 void Uart3Init()
 {
     S3CON |= 0x10;
-    T2L = BRT &0xff;
-    T2H = (BRT >> 8) & 0xff;
-    AUXR |= 0x14;
+    Timer2_Init(BRT);
     IE2 |= 0x08;
 }
 
@@ -121,9 +117,7 @@ void Uart4Isr() interrupt 18 using 1
 void Uart4Init()
 {
     S4CON |= 0x10;
-    T2L = BRT &0xff;
-    T2H = (BRT >> 8) & 0xff;
-    AUXR |= 0x14;
+    Timer2_Init(BRT);
     IE2 |= 0x10;
 }
 
