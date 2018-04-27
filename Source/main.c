@@ -40,41 +40,37 @@ extern char wptr;
 extern char rptr;
 extern char buffer[];
 
+void SystemInit(void) {
+    SCON  = 0x00;
+    S2CON = 0x00;
+    S3CON = 0x00;
+    S4CON = 0x00;
+}
+
 void main(void) {
     char str[10] = "hello";
     uint8_t i = 0x20, j = 0, c = 0;
     
+    SystemInit();
     
     UartInit();
     
-//    Uart2Init();
-//    Uart4Init();
+    Uart2Init();
+    Uart4Init();
     
     EA = 1;
-//    while (1) {
-//            print_info("EE");
-//        if (rptr != wptr)
-//        {
-//            buffer[wptr] = 0;
-//            print_info("L");
-//            wptr = 0;
-//        }
-//        Uart2Send('a');
-//        Delay500ms();
-//    }
+    while (1) {
+        if (rptr != wptr)
+        {
+            buffer[wptr] = 0;
+            print_info(buffer);
+            wptr = 0;
+        }
+        Uart2Send('a');
+        Delay500ms();
+    }
     OLED_Init();
-//    OLED_DisplayStr(0, 0, "45sss");
-//    OLED_DisplayStr(0, 1, "45sss");
-//    OLED_DisplayStr(0, 2, "45sss");
-//    OLED_DisplayStr(0, 3, "45sss");
-//    OLED_Refresh_Gram();
-    OLED_DisplayChar(0, 0, '1');
-    OLED_DisplayChar(0, 1, '2');
-    OLED_DisplayChar(0, 2, '3');
-    OLED_DisplayChar(0, 3, '4');
-    
     OLED_Refresh_Gram();
-    OLED_ScrollLeft(OLED_CMD_SCROLL_PAGE_4, OLED_CMD_SCROLL_PAGE_7, OLED_CMD_SCROLL_2_FRANES);
     while (1) {
 //        if (rptr != wptr)
 //        {
@@ -82,6 +78,7 @@ void main(void) {
 //            OLED_DisplayStr((i&0x0f), (i >> 4)&0x03, buffer);
 //            wptr = 0;
 //        }
+            print_info("EE");
 //        Uart2Send(i);
         i = i<8?i+1:0;
         Delay_ms(5000);
