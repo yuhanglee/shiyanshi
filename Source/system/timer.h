@@ -66,10 +66,18 @@ typedef struct {
     uint16_t Count;
 } Timer;
 
-#define CALC_COUNT(f, t, n)				(t)?(0xFFFF - FOSC / 12000000 * n):(0xFFFF - FOSC / 144000000 * n)
+#define CALC_COUNT(f, t, n)				(t)?(0xFFFF - FOSC / n):(0xFFFF - FOSC / 12 / n)
 
-
-
+enum {
+	e_TimTest = 0,
+	e_TimMax,
+};
+extern uint16_t TimerDelayArray[];
+#define IS_TIME_OUT_1MS(index, count)	(\
+											TimerDelayArray[(index)] >= (count) ? \
+											(TimerDelayArray[(index)] = 0) == 0 : \
+											0 \
+										)
 
 
 

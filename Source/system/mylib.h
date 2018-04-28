@@ -153,11 +153,11 @@ do {\
 #define TIMER2_TL(count)                (TIMER_T(L, 2, (count)))
 #define TIMER2_TH(count)                (TIMER_T(H, 2, (count)))
 
-#define TIMER3_TL(count)                (TIMER_T(L, 2, (count)))
-#define TIMER3_TH(count)                (TIMER_T(H, 2, (count)))
+#define TIMER3_TL(count)                (TIMER_T(L, 3, (count)))
+#define TIMER3_TH(count)                (TIMER_T(H, 3, (count)))
 
-#define TIMER4_TL(count)                (TIMER_T(L, 2, (count)))
-#define TIMER4_TH(count)                (TIMER_T(H, 2, (count)))
+#define TIMER4_TL(count)                (TIMER_T(L, 4, (count)))
+#define TIMER4_TH(count)                (TIMER_T(H, 4, (count)))
 
 /* ETx */
 
@@ -194,7 +194,7 @@ do {\
 
 /* T0_CT 如果想恢复定时器功能，需要将复位寄存器，重新初始化 */
 #define TIMER01_COUNT(x)                TMOD |= T##x##_CT
-#define TIMER01_GET_COUNT(x)			TMOD & (~(T##x##_CT))
+#define TIMER01_GET_COUNT(x)			(TMOD & (~(T##x##_CT)))
 
 #define TIMER0_COUNT()                  TIMER01_COUNT(0)
 #define TIMER1_COUNT()                  TIMER01_COUNT(1)
@@ -203,12 +203,16 @@ do {\
 #define TIMER1_GET_COUNT()				TIMER01_GET_COUNT(1)
 
 #define TIMER2_COUNT()                  AUXR |= T2_CT
+#define TIMER2_GET_COUNT()				(AUXR & T2_CT)
 
 #define TIMER34_COUNT(x)                T4T3M |= (T##x##_CT)
+#define TIMER34_GET_COUNT(x)			(T4T3M & (T##x##_CT))
 
-#define TIMER3_COUNT(x)                 TIMER34_COUNT(3)
-#define TIMER4_COUNT(x)                 TIMER34_COUNT(4)
+#define TIMER3_COUNT()                  TIMER34_COUNT(3)
+#define TIMER4_COUNT()                  TIMER34_COUNT(4)
 
+#define TIMER3_GET_COUNT()				TIMER34_GET_COUNT(3)
+#define TIMER4_GET_COUNT()				TIMER34_GET_COUNT(4)
 /* MODE 模式共分为4种，需要看手册 */
 #define TIMER01_MODE(x, num)            do {\
                                             TMOD = ((num) & 0x01) ? \

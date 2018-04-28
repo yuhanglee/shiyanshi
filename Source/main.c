@@ -48,23 +48,27 @@ void SystemInit(void) {
     S4CON = 0x00;
 }
 
-void main(void) {
-    char str[10] = "hello";
-    uint8_t i = 0x20, j = 0;
-    uint16_t c = 0;
+void DelayInit(void) {
     Timer t3;
     
-    SystemInit();
-    
-    UartInit();
-    
-//    Uart2Init();
-//    Uart4Init();
     t3.Type = TIMER_TYPE_TIMER;
 	t3.Mode = TIMER_Mode_0;
 	t3.FreqDiv = TIMER_FREQ_DIV_1;
-	t3.Count = 10000;
-    Timer3_Init();
+	t3.Count = 1000;
+    Timer3_Init(&t3);
+}
+
+void main(void) {
+    char str[10] = "hello";
+    uint8_t i = 0xfd, j = 0;
+    uint16_t c = 0;
+    
+    SystemInit();
+    UartInit();
+    DelayInit();
+    
+//    Uart2Init();
+//    Uart4Init();
     EA = 1;
 //    while (1) {
 //        if (rptr != wptr)
@@ -76,11 +80,9 @@ void main(void) {
 //        Uart2Send('a');
 //        Delay500ms();
 //    }
-    OLED_Init();
-    OLED_DisplayStr(0, 0, "shangshu");
-    OLED_DisplayStr(0, 1, "iLab");
-    OLED_Refresh_Gram();
-    
+//    OLED_Init();
+//    OLED_Refresh_Gram();
+    t3_1 = 1000;
     while (1) {
 //        if (rptr != wptr)
 //        {
@@ -88,12 +90,11 @@ void main(void) {
 //            OLED_DisplayStr((i&0x0f), (i >> 4)&0x03, buffer);
 //            wptr = 0;
 //        }
-            print_info("EE");
 //        Uart2Send(i);
-        i = i<8?i+1:0;
-        Delay500ms();
-        t3_1 = 100;
-        while (!t3_1);
+        printf("%bu\r\n", i++);
+        while (!IS_TIME_OUT_1MS(e_TimTest, 1000));
+//        t3_1 = 100;
+//        while (!t3_1);
     }
 //    while (AT24CXX_Check()) {
 //        print_debug("EEPROM check faild");

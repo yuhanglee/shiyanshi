@@ -5,6 +5,8 @@
 
 uint16_t t3_1 = 0;
 
+uint16_t TimerDelayArray[e_TimMax] = {0};
+
 void TIM0_IRQ(void)         interrupt 1 {
 
 }
@@ -19,7 +21,12 @@ void TIM2_IRQ(void)         interrupt 12 {
 }
 
 void TIM3_IRQ(void)         interrupt 19 {
-    t3_1 = t3_1?t3_1-1:0;
+    uint8_t i;
+    EA = 0;
+    for (i = 0;i < e_TimMax;i++) {
+        TimerDelayArray[i]++;
+    }
+    EA = 1;
     AUXINTIF &= ~T3IF;                          //清中断标志
 }
 
@@ -46,7 +53,6 @@ void Timer3_Init(Timer * tim) {
         TMOD = 0x00;
         TMOD = tmod_t;
     }
-    
     if (TIMER_FREQ_DIV_12 == tim->FreqDiv) {
         TIMER3_FREQ_ENABLE();
     } else {
@@ -54,9 +60,10 @@ void Timer3_Init(Timer * tim) {
     }
     
     count = CALC_COUNT(FOSC, tim->FreqDiv, tim->Count);
-    
     TIMER3_TH(((count >> 8) & 0xff));
     TIMER3_TL((count & 0xff));
+    TIMER3_ENABLE();
+    TIMER3_RUN();
 }
 /* 定时器2是给串口当做波特率发生器的，不可以用作其他用途 
  * 如果需要使用 12T 模式，则需要晶振为 11.0592MHz，
