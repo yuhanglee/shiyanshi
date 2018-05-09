@@ -423,6 +423,11 @@
               <FileType>1</FileType>
               <FilePath>..\Source\driver\key.c</FilePath>
             </File>
+            <File>
+              <FileName>botp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Source\botp.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
