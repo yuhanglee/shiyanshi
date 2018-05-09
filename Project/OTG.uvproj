@@ -408,6 +408,21 @@
               <FileType>1</FileType>
               <FilePath>..\Source\system\timer.c</FilePath>
             </File>
+            <File>
+              <FileName>gt20.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Source\driver\gt20.c</FilePath>
+            </File>
+            <File>
+              <FileName>led.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Source\driver\led.c</FilePath>
+            </File>
+            <File>
+              <FileName>key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Source\driver\key.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

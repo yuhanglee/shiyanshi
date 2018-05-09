@@ -165,4 +165,7 @@ void OLED_DisplayChar(uint8_t x, uint8_t y, uint8_t ch);
 void OLED_DisplayStr(uint8_t x, uint8_t y, uint8_t * str);
 void OLED_Scroll(uint8_t Direction, uint8_t StartPage, uint8_t EndPage, uint8_t Franes);
 void OLED_ScrollUp(uint8_t StartPage, uint8_t EndPage, uint8_t Franes);
+void OLED_DisplayIcon(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t * ch, uint16_t len);
+void OLED_DisplayHanziStr(u8 x, u8 y, char * disStr);
+void OLED_DisplayLogo(void);
 #endif
