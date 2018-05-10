@@ -22,6 +22,7 @@
 #define BOTP_ERROR_TEXT_LENGTH	0x12
 #define BOTP_ERROR_DATA_LENGTH	0x13
 #define BOTP_ERROR_DATA_CRC16	0x14
+#define BOTP_ERROR_INDEX        0x15
 
 
 
@@ -241,6 +242,7 @@ void BOTP_Init(BOTP * botp);
 uint8_t BOTP_PackExtTest(Pack_t * p, uint16_t len);
 uint8_t BOTP_Exec(BOTP * botp);
 
+void ExtDev_ClearDeviceTable(void);
 void ExtDev_Init(ExtDev * Dev);
 void ExtDev_SetBusId(ExtDev * Dev, uint8_t BusId);
 void ExtDev_SetMsgType(ExtDev * Dev, uint8_t MsgType);

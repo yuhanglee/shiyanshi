@@ -199,9 +199,16 @@ void BOTP_PackAddItem(Pack_t * p, uint8_t index, uint8_t type, uint8_t * value, 
 
 ExtDev device[8] = {
 	{{BUS_NET,  MSG_TYPE_USER},     0,  0x00000000},
-    {{BUS_NET,  MSG_TYPE_UP},       1,  0x00000001},
-    {{BUS_UART, MSG_TYPE_HEARBATE}, 0,  0x00000003},
-    {{BUS_UART, MSG_TYPE_USER},     1,  0x11111111},
+	{{BUS_NET,  MSG_TYPE_USER},     0,  0x00000000},
+	{{BUS_NET,  MSG_TYPE_USER},     0,  0x00000000},
+	{{BUS_NET,  MSG_TYPE_USER},     0,  0x00000000},
+	{{BUS_NET,  MSG_TYPE_USER},     0,  0x00000000},
+	{{BUS_NET,  MSG_TYPE_USER},     0,  0x00000000},
+	{{BUS_NET,  MSG_TYPE_USER},     0,  0x00000000},
+	{{BUS_NET,  MSG_TYPE_USER},     0,  0x00000000},
+//    {{BUS_NET,  MSG_TYPE_UP},       1,  0x00000001},
+//    {{BUS_UART, MSG_TYPE_HEARBATE}, 0,  0x00000003},
+//    {{BUS_UART, MSG_TYPE_USER},     1,  0x11111111},
 };
 
 void ExtDev_Init(ExtDev * Dev) {
@@ -258,7 +265,7 @@ uint8_t ExtDev_GetDeviceIdleIndex(void) {
 		}
 	}
 	
-	return 0xff;
+	return BOTP_ERROR_INDEX;
 }
 
 uint8_t ExtDev_GetDeviceIndexByMac(uint32_t Mac) {
@@ -270,7 +277,7 @@ uint8_t ExtDev_GetDeviceIndexByMac(uint32_t Mac) {
  		}
 	}
 	
-	return 0xff;
+	return BOTP_ERROR_INDEX;
 }
 
 uint8_t ExtDev_GetDeviceIndexByBusIndex(uint8_t BusId, uint8_t Index) {
@@ -285,7 +292,7 @@ uint8_t ExtDev_GetDeviceIndexByBusIndex(uint8_t BusId, uint8_t Index) {
 		}
 	}
 	
-	return 0xff;
+	return BOTP_ERROR_INDEX;
 } 
 
 uint8_t ExtDev_GetBusIdleIndex(uint8_t BusId) {
@@ -302,11 +309,25 @@ uint8_t ExtDev_GetBusIdleIndex(uint8_t BusId) {
 	
 	index++;
 	
-	return index;
+	return index & 0xff;
 }
 
 
 
+
+void ExtDev_ClearDeviceTable(void) {
+    uint8_t i, j;
+    
+    for (i = 0;i < (sizeof(device) / sizeof(device[0]));i++) {
+        if (0x00000000 != device[i].Mac) {
+            for (j = i+1;j < (sizeof(device) / sizeof(device[0]));j++) {
+                if (device[j].Mac == device[i].Mac) {
+                    device[j].Mac = 0x00000000;
+                }
+            }
+        }
+    }
+}
 
 
 uint8_t BOTP_BusNet(BOTP botp) {
@@ -446,11 +467,24 @@ uint8_t BOTP_Exec(BOTP * botp) {
 	// 目标地址和本机地址不一致 
 	if (0 == BOTP_CheckDMacAddr(*botp)) {
 		index = ExtDev_GetDeviceIndexByMac(botp->DMacAddr);
-		botp->Msg.BusID = device[index].Msg.BusID;
-		botp->MsgCount = device[index].Msg.Type;
-        printf("send data\r\n");
-		return BOTP_SendData(botp);
-		
+        if (BOTP_ERROR_INDEX != index) { // 可以在设备表中找到设备
+            botp->Msg.BusID = device[index].Msg.BusID;
+            botp->MsgCount = device[index].Msg.Type;
+            return BOTP_SendData(botp);
+        } else {
+            index = ExtDev_GetDeviceIdleIndex(); // 获取空闲设备索引
+            if (BOTP_ERROR_INDEX != index) {    // 正常获取
+                ExtDev_SetBusId(&(device[index]), botp->Msg.BusID);
+                ExtDev_SetMsgType(&(device[index]), botp->Msg.Type);
+                ExtDev_SetBusIndex(&(device[index]), ExtDev_GetBusIdleIndex(botp->Msg.BusID));
+                ExtDev_SetMacCrc32(&(device[index]), botp->SMacAddr); 
+                return BOTP_OK;
+            } else {
+                printf("idle device index error\r\n");
+                return BOTP_ERROR_INDEX;
+            }
+            printf("idle device index error\r\n");
+        }
 //		switch (BOTP_GetMsgType	(*botp)) {
 //			case MSG_TYPE_UP:
 //			break;
@@ -674,8 +708,6 @@ uint8_t BOTP_SendData(BOTP * b) {
 						}
 						printf("%02bx ", ((uint8_t *)(b))[i]);
 					}
-					printf("\r\n");
-					printf("%x\r\n", b->PackLen);
 					if (b->PackLen != 0) {
 						for (;i < (b->PackLen + 0x1C);i++) {
 							if ((i & 0x00ff) == 0) {

@@ -212,7 +212,6 @@ void main(void) {
         wc_assert(plen == BOTP_GetPackLength(b));
         wc_assert(0x7777 == BOTP_GetPackDataCrc16(b.Pack));
     }
-	
 //	i = BOTP_PackDataFill(&(b.Pack));
 //	BOTP_SetPackLength(&b, i);
 //    printf("len;%u\r\n", i);
@@ -249,15 +248,13 @@ void main(void) {
                 pb = (BOTP *)buffer;
                 if (wptr >= (pb->PackLen + 0x1C)) {
                     Delay_ms(10);
-                    printf("len:%u\r\n", pb->PackLen);
-                    BOTP_SendData(pb);
-                    printf("exec ret:%bx\r\n", BOTP_Exec(pb));
-                    printf("\r\n"); 
+                    BOTP_Exec(pb);
                     wptr = 0;
                     for (i = 0;i < 256;i++) {
                         buffer[i] = 0x00;
                     }
                 } 
+                ExtDev_ClearDeviceTable();
             }
         }
     }
