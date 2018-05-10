@@ -6,11 +6,11 @@
 #define SIZE(b)         (sizeof(b))
 
 static code cmd CMDSTR[] = {
-    {"EPM read",    USER_DEV, 0x00ff, 8, cmd_EpmRead},
-    {"EPM write",   USER_DEV, 0x209b, 9, cmd_EpmWrite},
-    {"LCD OFF",     USER_NOR, 0x0d06, 7, cmd_LcdOff},
-    {"LCD ON",      USER_NOR, 0x7308, 6, cmd_LcdOn},
-    {"PING",        USER_NOR, 0x3d23, 4, cmd_Ping},
+    {"EPM READ",    USER_DEV, 0x3eac, 8, cmd_EpmRead},
+    {"EPM WRITE",   USER_DEV, 0x116a, 9, cmd_EpmWrite},
+    {"LCD OFF",     USER_NOR, 0x1106, 7, cmd_LcdOff},
+    {"LCD ON",      USER_NOR, 0x5987, 6, cmd_LcdOn},
+    {"PING",        USER_NOR, 0xAD1A, 4, cmd_Ping},
 }; 
 
 
@@ -20,9 +20,9 @@ uint16_t hash_calc(char * str, uint8_t len) {
     uint8_t step = (len >> 3) + 1;
         
     for (i = 0;i < len;i += step) {
-        hash = hash ^ ((hash << 5) + (hash >> 2) + (unsigned char)(*str));
+        hash = hash ^ ((hash << 5) + (hash >> 2) + (unsigned char)(str[i]));
     }
-    
+    printf("hash:%04x\r\n", hash);
     return hash;
 }
 
@@ -56,32 +56,32 @@ cmd_status cmd_exec(cmd_code cmd_e) {
     cmd_status ret = cmd_ErrorFormat;
     switch (cmd_e) {
         case cmd_Error:
-            printf("cmd code error\n");
+            printf("cmd code error\r\n");
             break;
         
         case cmd_LcdOff:
-            printf("LCD off\n");
+            printf("LCD of\rf\n");
             break;
         
         case cmd_LcdOn:
-            printf("LCD on\n");
+            printf("LCD on\r\n");
             break;
         
         case cmd_Ping:
-            printf("OK\n");
+            printf("OK\r\n");
             ret = cmd_OK;
             break;
         
         case cmd_EpmRead:
-            printf("eeprom read test\n");
+            printf("eeprom read test\r\n");
             break;
         
         case cmd_EpmWrite:
-            printf("eeprom write test");
+            printf("eeprom write test\r\n");
             break;
         
         default:
-            printf("Format error\n");
+            printf("Format error\r\n");
     }
         
     return ret;

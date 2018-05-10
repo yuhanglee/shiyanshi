@@ -198,34 +198,61 @@
 #define BOTP_GetPackTextLength(p)			((p).TextLen)
 #define BOTP_GetPackDataCrc16(p)			((p).Crc16)
 
+#define IS_EXT_DEV_ID(id)					( \
+												((id) >= 0) && \
+												((id) <= 7) \
+											) 
 
 typedef struct {
-	uint8_t 	Type;
-	uint8_t 	StrLen;
-	uint8_t 	TextLen;
-	uint8_t 	Data[PACK_DATA_LEN - 3];
+	//uint8_t 	Type;
+//	uint8_t 	StrLen;
+//	uint8_t 	TextLen;
+	uint8_t 	Data[PACK_DATA_LEN];
 	uint16_t 	Crc16;
 } Pack_t;
 
+struct _msg{
+	uint8_t BusID:4;
+	uint8_t Type:4; 
+};
 typedef struct {
 	uint32_t	 	Header; 		// "BOTP"
 	uint16_t 		Family;			// ushort 类型  	0x0000 微畅    0xffff 自由协议
 	uint8_t 		Version;		// 版本			 	0x00   开发版本
-	struct {
-		uint8_t BusID:4;
-		uint8_t Type:4; 
-	} Msg;
-	uint32_t SMacAddr;				// 从设备mac地址 
- 	uint32_t MsgCount;				// 消息计数
- 	uint32_t DMacAddr;				// 目标设备mac地址  供中继使用
-	uint32_t QuickCmd;				// 快速指令
-	uint16_t PackLen;				// 数据长度
-	Pack_t 	 Pack;
+	struct _msg		Msg;			// 消息类型 
+	uint32_t 		SMacAddr;				// 从设备mac地址 
+ 	uint32_t 		MsgCount;				// 消息计数
+ 	uint32_t 		DMacAddr;				// 目标设备mac地址  供中继使用
+	uint32_t 		QuickCmd;				// 快速指令
+	uint16_t 		PackLen;				// 数据长度
+	Pack_t 	 		Pack;
 } BOTP;
+
+
+
+typedef struct {
+	struct _msg	Msg; 		// 当前设备消息类型  参考 BOTP 的消息类型
+	uint8_t 	Index;		// 当前设备占用资源索引值 
+	uint32_t 	Mac;		// 当前设备 MAC 地址(CRC32) 
+} ExtDev;
+extern ExtDev device[];
 
 uint16_t CRC16_Calc(char * CrcArray, uint16_t CrcLen);
 void CRC16_CreateTable(void);
 uint16_t BOTP_PackDataFill(Pack_t * p);
 void BOTP_Init(BOTP * botp);
 void BOTP_PackExtTest(Pack_t * p, uint16_t len);
+
+void ExtDev_Init(ExtDev * Dev);
+void ExtDev_SetBusId(ExtDev * Dev, uint8_t BusId);
+void ExtDev_SetMsgType(ExtDev * Dev, uint8_t MsgType);
+void ExtDev_SetMacCrc32(ExtDev * Dev, uint32_t Mac);
+void ExtDev_SetBusIndex(ExtDev * Dev, uint8_t Index);
+uint8_t ExtDev_GetBusId(ExtDev * Dev);
+uint8_t ExtDev_GetMsgType(ExtDev * Dev);
+uint8_t ExtDev_GetDeviceIdleIndex(void);
+uint8_t ExtDev_GetDeviceIndexByMac(uint32_t Mac);
+uint8_t ExtDev_GetDeviceIndexByBusIndex(uint8_t BusId, uint8_t Index);
+uint8_t ExtDev_GetBusIdleIndex(uint8_t BusId);
+void BOTP_SendData(uint8_t msg, BOTP * b);
 #endif

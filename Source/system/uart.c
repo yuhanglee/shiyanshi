@@ -5,9 +5,9 @@
 #define BRT         (65536 - FOSC / 115200 / 4)
 
 bit busy;
-char wptr = 0;
-char rptr = 0;
-char buffer[16] = {0};
+uint8_t wptr = 0;
+uint8_t rptr = 0;
+char buffer[256] = {0};
 
 
 char putchar(char c) {
@@ -15,7 +15,8 @@ char putchar(char c) {
     return c;
 }
 void Uart1Isr(void) interrupt 4 using 1 {
-    if (RI) {
+    if (RI)
+    {
         RI = 0;
     }
 }
@@ -77,6 +78,7 @@ void Uart3Isr() interrupt 17 using 1
     if (S3CON & 0x01)
     {
         S3CON &= ~0x01;
+        buffer[wptr++] = SBUF;
     }
 }
 

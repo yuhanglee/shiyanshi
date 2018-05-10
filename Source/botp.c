@@ -197,6 +197,111 @@ void BOTP_PackAddItem(Pack_t * p, uint8_t index, uint8_t type, uint8_t * value, 
 #define BOTP_UuidToObj(p,	index, value)		BOTP_PackGetUuid(p, index,	value) 
 
 
+ExtDev device[8] = {
+	0
+};
+
+void ExtDev_Init(ExtDev * Dev) {
+	wc_assert(IS_EXT_DEV_ID(((Dev - device) / sizeof(device[0]))));
+	
+	Dev->Msg.BusID 	= BUS_ERROR;
+	Dev->Msg.Type  	= MSG_TYPE_ERROR;
+	Dev->Index 		= 0xff;
+	Dev->Mac		= 0x00000000;
+}
+void ExtDev_SetBusId(ExtDev * Dev, uint8_t BusId) {
+	wc_assert(IS_BUS(BusId));
+	wc_assert(IS_EXT_DEV_ID((Dev - device) / sizeof(device[0])));
+	
+	Dev->Msg.BusID = BusId;
+}
+
+void ExtDev_SetMsgType(ExtDev * Dev, uint8_t MsgType) {
+	wc_assert(IS_MSG_TYPE(MsgType));
+	wc_assert(IS_EXT_DEV_ID((Dev - device) / sizeof(device[0])));
+	
+	Dev->Msg.Type = MsgType;
+}
+
+void ExtDev_SetMacCrc32(ExtDev * Dev, uint32_t Mac) {
+	wc_assert(IS_EXT_DEV_ID((Dev - device) / sizeof(device[0])));
+	
+	Dev->Mac = Mac;
+}
+void ExtDev_SetBusIndex(ExtDev * Dev, uint8_t Index) {
+	wc_assert(IS_EXT_DEV_ID((Dev - device) / sizeof(device[0])));
+	
+	Dev->Index = Index;
+}
+
+uint8_t ExtDev_GetBusId(ExtDev * Dev) {
+	wc_assert(IS_EXT_DEV_ID((Dev - device) / sizeof(device[0])));
+	
+	return Dev->Msg.BusID;
+}
+
+uint8_t ExtDev_GetMsgType(ExtDev * Dev) {
+	wc_assert(IS_EXT_DEV_ID((Dev - device) / sizeof(device[0])));
+
+	return Dev->Msg.Type;
+}
+
+uint8_t ExtDev_GetDeviceIdleIndex(void) {
+	uint8_t i;
+	
+	for (i = 0;i < (sizeof(device) / sizeof(device[0]));i++) {
+		if (device[i].Mac == 0x0000000) {
+			return i;
+		}
+	}
+	
+	return 0xff;
+}
+
+uint8_t ExtDev_GetDeviceIndexByMac(uint32_t Mac) {
+	int i;
+	
+	for (i = 0;i < (sizeof(device) / sizeof(device[0]));i++) {
+		 if (Mac == device[i].Mac) {
+ 			return i;
+ 		}
+	}
+	
+	return 0xff;
+}
+
+uint8_t ExtDev_GetDeviceIndexByBusIndex(uint8_t BusId, uint8_t Index) {
+	uint8_t i = 0;
+	
+	wc_assert(IS_BUS(BusId));
+	wc_assert(IS_EXT_DEV_ID(Index));
+	
+	for (i = 0;i < (sizeof(device) / sizeof(device[0]));i++) {
+		if ((BusId == device[i].Msg.BusID) && (Index == device[i].Index)) {
+			return i;
+		}
+	}
+	
+	return 0xff;
+} 
+
+uint8_t ExtDev_GetBusIdleIndex(uint8_t BusId) {
+	uint8_t i;
+	uint8_t index = 0xff;
+	
+	wc_assert(IS_BUS(BusId));
+	
+	for (i = 0;i < (sizeof(device) / sizeof(device[0]));i++) {
+		if (BusId == device[i].Msg.BusID) {
+			index = device[i].Index;
+		}
+	}
+	
+	index++;
+	
+	return index;
+}
+
 
 uint8_t BOTP_BusNet(BOTP botp) {
 	switch (BOTP_GetMsgType(botp)) {
@@ -528,4 +633,45 @@ void BOTP_PackExtTest(Pack_t * p, uint16_t len) {
 		item_len = 0;
 	} while (len);
 	
+}
+
+void BOTP_SendData(uint8_t msg, BOTP * b) {
+	uint8_t busId = (msg >> 4) & 0x0f;
+	uint8_t msgType = (msg >> 0) & 0x0f;
+	uint16_t i;
+	
+	wc_assert(IS_BUS(busId));
+	wc_assert(IS_MSG_TYPE(msgType));
+	
+	switch (busId) {
+		case BUS_UART:
+			switch (msgType) {
+				case MSG_TYPE_USER:
+					for (i = 0;i < 0x1A;i++) {
+						if ((i & 0x00ff) == 0) {
+							printf("\r\n");
+						}
+						printf("%02bx ", ((uint8_t *)(b))[i]);
+					}
+					printf("\r\n");
+					printf("%x\r\n", b->PackLen);
+					if (b->PackLen != 0) {
+						for (;i < (b->PackLen + 0x1C);i++) {
+							if ((i & 0x00ff) == 0) {
+								printf("\n");
+							}
+							printf("%02bx ", ((uint8_t *)(b))[i]);
+						}
+					}
+				break;
+				default:
+					printf("msgType:%02bx\r\n", msgType);
+				break;
+			}
+		break;
+		
+		default:
+			printf("busId:%02bx\r\n", busId);
+		break;
+	}
 }

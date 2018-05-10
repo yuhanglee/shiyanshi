@@ -7,7 +7,7 @@ sbit SCL=P2^5;
 sbit SDA=P2^4;
 
 void Delay_us(unsigned int us) {
-    int i = 100;
+    int i = 3;
     (void)us;
     for (;i;i--);
 }

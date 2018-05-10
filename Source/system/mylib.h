@@ -40,7 +40,11 @@ typedef int32_t         s32;
     #define wc_assert(n)    \
     do {\
         if (!(n)) {\
-            printf("%s %bd\n", __FILE__, __LINE__);\
+            if (__LINE__ > 255) { \
+                printf("%s %u\n", __FILE__, __LINE__);\
+            } else { \
+                printf("%s %bu\n", __FILE__, __LINE__);\
+            } \
             while (1);\
         }\
     } while(0)
@@ -51,7 +55,7 @@ typedef int32_t         s32;
 
 
 
-#define FOSC        (11059200UL) // 内部晶振为24MHz，如果需要使用外部的11.0592MHz，则需要对硬件做一些改动
+#define FOSC        (24000000UL) // 内部晶振为24MHz，如果需要使用外部的11.0592MHz，则需要对硬件做一些改动
 
 
 

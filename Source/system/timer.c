@@ -1,5 +1,5 @@
 #include "timer.h"
-
+#include "led.h"
 
 #define BRT         (65536 - FOSC / 115200 / 4)
 
@@ -21,11 +21,59 @@ void TIM2_IRQ(void)         interrupt 12 {
 }
 
 void TIM3_IRQ(void)         interrupt 19 {
-    uint8_t i;
+    static uint16_t i = 0;
     EA = 0;
-    for (i = 0;i < e_TimMax;i++) {
-        TimerDelayArray[i]++;
+    if (i < fre/2) {
+        switch (color) {
+            case LED_R:
+                LED_R_SET();
+                LED_G_RESET();
+                LED_B_RESET();
+            break;
+            
+            case LED_B:
+                LED_B_SET();
+                LED_R_RESET();
+                LED_G_RESET();
+            break;
+            break;
+            
+            case LED_G:
+                LED_G_SET();
+                LED_R_RESET();
+                LED_B_RESET();
+            break;
+            
+            case 4:
+                LED_G_RESET();
+                LED_R_RESET();
+                LED_B_RESET();
+            break;
+            
+            default:
+                
+            break;
+        }
+    } else {
+        switch (color) {
+            case LED_R:
+                LED_R_RESET();
+            break;
+            
+            case LED_B:
+                LED_B_RESET();
+            break;
+            
+            case LED_G:
+                LED_G_RESET();
+            break;
+            
+            default:
+                
+            break;
+        }
     }
+    i = i >= fre? 0: i+1;
     EA = 1;
     AUXINTIF &= ~T3IF;                          //清中断标志
 }
@@ -60,8 +108,10 @@ void Timer3_Init(Timer * tim) {
     }
     
     count = CALC_COUNT(FOSC, tim->FreqDiv, tim->Count);
-    TIMER3_TH(((count >> 8) & 0xff));
-    TIMER3_TL((count & 0xff));
+//    TIMER3_TH(((count >> 8) & 0xff));
+//    TIMER3_TL((count & 0xff));
+	T3L = 0xA0;		//??????
+	T3H = 0xF6;		//??????
     TIMER3_ENABLE();
     TIMER3_RUN();
 }
