@@ -308,7 +308,7 @@ void OLED_Refresh_Gram(void) {
 
 
 void OLED_DisplayIcon(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t * ch, uint16_t len) {
-    uint8_t i, j;
+    uint8_t i;
     uint8_t n = x << 3; // x*8
     
     wc_assert(x < OLED_X_MAX);

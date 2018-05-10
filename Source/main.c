@@ -46,10 +46,13 @@ extern uint8_t rptr;
 extern char buffer[];
 
 void SystemInit(void) {
-    SCON  = 0x00;
-    S2CON = 0x00;
-    S3CON = 0x00;
-    S4CON = 0x00;
+    SCON    = 0x00;
+    S2CON   = 0x00;
+    S3CON   = 0x00;
+    S4CON   = 0x00;
+    
+    AUXR    = 0x00;
+    AUXR2   = 0x00;
 }
 
 void DelayInit(void) {
@@ -143,36 +146,23 @@ void LED_Exp(void) {
 
 void main(void) {
     BOTP b;
+    BOTP * pb;
 	Pack_t *p = &(b.Pack);
     
 	int i = 0;
 	
-	uint8_t ret;
 	uint8_t index = 0;
-	uint8_t u_8;
-	uint16_t u_16;
-	uint32_t u_32;
-	float f;
-	double d;
-	uint8_t ch[16], ch1[16];
-	
-	uint8_t type;
-	uint32_t data_i;
-	double data_f;
-	uint8_t data_ch[16];
-	
 	
     SystemInit();
     
     
     UartInit();
-    DelayInit();
-    Uart3Init();
+    //DelayInit();
+    //Uart3Init();
     
     EA = 1;
     
     OLED_Init();
-    LED_Init();
     
         Delay500ms();
     printf("uart Init\r\n");
@@ -223,38 +213,53 @@ void main(void) {
         wc_assert(0x7777 == BOTP_GetPackDataCrc16(b.Pack));
     }
 	
-	i = BOTP_PackDataFill(&(b.Pack));
-	BOTP_SetPackLength(&b, i);
-    
-	ExtDev_Init(&(device[0]));
-    
-	if (0xff == ExtDev_GetDeviceIndexByMac(b.DMacAddr)) { // 如果当前 MAC 没有在设备数组中 
-		index = ExtDev_GetDeviceIdleIndex();	 // 寻找下一个可用的设备数组索引值 
-		if (0xff != index) {	// 当前设备总线索引值是否可用 
-			ExtDev_SetMsgType(&(device[index]), b.Msg.Type);
-			ExtDev_SetBusId(&(device[index]), b.Msg.BusID);
-			ExtDev_SetBusIndex(&(device[index]), ExtDev_GetBusIdleIndex(b.Msg.BusID));
-			ExtDev_SetMacCrc32(&(device[index]), b.DMacAddr);
-		}
-	}
-	printf("bus:%bx\r\n", device[0].Msg.BusID);
-	printf("type:%bx\r\n", device[0].Msg.Type);
-	printf("index:%bx\r\n", device[0].Index);
-	printf("mac:%lx\r\n", device[0].Mac);
-	
-	
-	
-	index = ExtDev_GetDeviceIndexByMac(b.DMacAddr);
-	printf("index:%02bx\r\n", index); 
-	
-	BOTP_SendData((b.Msg.BusID << 4) | (b.Msg.Type), &b);
-	printf("\r\n"); 
-	
-	printf("\r\n");
-	BOTP_PackExtTest(p, b.PackLen);
-	
+//	i = BOTP_PackDataFill(&(b.Pack));
+//	BOTP_SetPackLength(&b, i);
+//    printf("len;%u\r\n", i);
+//	ExtDev_Init(&(device[0]));
+//    
+//	if (0xff == ExtDev_GetDeviceIndexByMac(b.DMacAddr)) { // 如果当前 MAC 没有在设备数组中 
+//		index = ExtDev_GetDeviceIdleIndex();	 // 寻找下一个可用的设备数组索引值 
+//		if (0xff != index) {	// 当前设备总线索引值是否可用 
+//			ExtDev_SetMsgType(&(device[index]), b.Msg.Type);
+//			ExtDev_SetBusId(&(device[index]), b.Msg.BusID);
+//			ExtDev_SetBusIndex(&(device[index]), ExtDev_GetBusIdleIndex(b.Msg.BusID));
+//			ExtDev_SetMacCrc32(&(device[index]), b.DMacAddr);
+//		}
+//	}
+//	printf("bus:%bx\r\n", device[0].Msg.BusID);
+//	printf("type:%bx\r\n", device[0].Msg.Type);
+//	printf("index:%bx\r\n", device[0].Index);
+//	printf("mac:%lx\r\n", device[0].Mac);
+//	
+//	
+//	
+//	index = ExtDev_GetDeviceIndexByMac(b.DMacAddr);
+//	printf("index:%02bx\r\n", index); 
+//	
+//	BOTP_SendData(&b);
+//	printf("\r\n"); 
+//	
+//	printf("\r\n");
+//	BOTP_PackExtTest(p, b.PackLen);
+//	
     while (1) {
-    
+        if (wptr != rptr) {
+            if (wptr > 0x1A) {
+                pb = (BOTP *)buffer;
+                if (wptr >= (pb->PackLen + 0x1C)) {
+                    Delay_ms(10);
+                    printf("len:%u\r\n", pb->PackLen);
+                    BOTP_SendData(pb);
+                    printf("exec ret:%bx\r\n", BOTP_Exec(pb));
+                    printf("\r\n"); 
+                    wptr = 0;
+                    for (i = 0;i < 256;i++) {
+                        buffer[i] = 0x00;
+                    }
+                } 
+            }
+        }
     }
     
     while (1) {

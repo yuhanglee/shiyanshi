@@ -204,9 +204,6 @@
 											) 
 
 typedef struct {
-	//uint8_t 	Type;
-//	uint8_t 	StrLen;
-//	uint8_t 	TextLen;
 	uint8_t 	Data[PACK_DATA_LEN];
 	uint16_t 	Crc16;
 } Pack_t;
@@ -241,7 +238,8 @@ uint16_t CRC16_Calc(char * CrcArray, uint16_t CrcLen);
 void CRC16_CreateTable(void);
 uint16_t BOTP_PackDataFill(Pack_t * p);
 void BOTP_Init(BOTP * botp);
-void BOTP_PackExtTest(Pack_t * p, uint16_t len);
+uint8_t BOTP_PackExtTest(Pack_t * p, uint16_t len);
+uint8_t BOTP_Exec(BOTP * botp);
 
 void ExtDev_Init(ExtDev * Dev);
 void ExtDev_SetBusId(ExtDev * Dev, uint8_t BusId);
@@ -254,5 +252,5 @@ uint8_t ExtDev_GetDeviceIdleIndex(void);
 uint8_t ExtDev_GetDeviceIndexByMac(uint32_t Mac);
 uint8_t ExtDev_GetDeviceIndexByBusIndex(uint8_t BusId, uint8_t Index);
 uint8_t ExtDev_GetBusIdleIndex(uint8_t BusId);
-void BOTP_SendData(uint8_t msg, BOTP * b);
+uint8_t BOTP_SendData(BOTP * b);
 #endif

@@ -1,8 +1,14 @@
 #include "mylib.h"
 #include "stc8.h"
+
+
+#define BRT         (65536 - FOSC / 115200 / 4)
+#define BUF_MAX_LEN (256)
+
 void UartInit(void);
 void Uart1Send(char dat);
 void Uart1SendStr(char *p);
+void Uart1SendHex(uint8_t * buf, uint8_t len);
 
 void Uart2Init(void);
 void Uart2Send(char dat);

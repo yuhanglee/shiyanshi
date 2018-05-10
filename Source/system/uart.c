@@ -1,30 +1,36 @@
 #include "uart.h"
 #include "stc8.h"
 #include "timer.h"
-
-#define BRT         (65536 - FOSC / 115200 / 4)
-
 bit busy;
 uint8_t wptr = 0;
 uint8_t rptr = 0;
-char buffer[256] = {0};
+uint8_t buffer[BUF_MAX_LEN] = {0};
 
 
 char putchar(char c) {
     Uart1Send(c);
     return c;
 }
-void Uart1Isr(void) interrupt 4 using 1 {
-    if (RI)
-    {
+void Uart1Isr(void) interrupt 4 using 0 {
+    if (RI) {
+        buffer[wptr++] = SBUF;
+        wptr &= 0xff;
         RI = 0;
     }
 }
 
+//void UartInit(void) {
+//    SCON |= 0x50;
+//    Timer2_Init(BRT);
+//    AUXR |= 0x01; // 选择定时器2作为波特率发生器
+//    ES = 1;
+//}
+
 void UartInit(void) {
-    SCON |= 0x50;
-    Timer2_Init(BRT);
-    AUXR |= 0x01; // 选择定时器2作为波特率发生器
+    SCON = 0x50;
+    T2L = BRT &0xff;
+    T2H = (BRT >> 8) & 0xff;
+    AUXR = 0x15;
     ES = 1;
 }
 
@@ -40,6 +46,13 @@ void Uart1SendStr(char *p) {
     }
 }
 
+void Uart1SendHex(uint8_t * buf, uint8_t len) {
+    uint8_t i;
+    
+    for (i = 0;i < len;i++) {
+        Uart1Send(buf[i]);
+    }
+}
 
 
 void Uart2Isr() interrupt 8 using 1
@@ -78,7 +91,6 @@ void Uart3Isr() interrupt 17 using 1
     if (S3CON & 0x01)
     {
         S3CON &= ~0x01;
-        buffer[wptr++] = SBUF;
     }
 }
 
@@ -111,8 +123,6 @@ void Uart4Isr() interrupt 18 using 1
     if (S4CON & 0x01)
     {
         S4CON &= ~0x01;
-        buffer[wptr++] = S4BUF;
-        wptr &= 0x0f;
     }
 }
 

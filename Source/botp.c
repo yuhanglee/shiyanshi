@@ -198,7 +198,10 @@ void BOTP_PackAddItem(Pack_t * p, uint8_t index, uint8_t type, uint8_t * value, 
 
 
 ExtDev device[8] = {
-	0
+	{{BUS_NET,  MSG_TYPE_USER},     0,  0x00000000},
+    {{BUS_NET,  MSG_TYPE_UP},       1,  0x00000001},
+    {{BUS_UART, MSG_TYPE_HEARBATE}, 0,  0x00000003},
+    {{BUS_UART, MSG_TYPE_USER},     1,  0x11111111},
 };
 
 void ExtDev_Init(ExtDev * Dev) {
@@ -301,6 +304,9 @@ uint8_t ExtDev_GetBusIdleIndex(uint8_t BusId) {
 	
 	return index;
 }
+
+
+
 
 
 uint8_t BOTP_BusNet(BOTP botp) {
@@ -426,73 +432,87 @@ void BOTP_Init(BOTP * botp) {
 	botp->Family			= FAMILY;
 }
 
-uint8_t BOTP_Exec(BOTP botp) {
+uint8_t BOTP_Exec(BOTP * botp) {
+	uint8_t index = 0x00;
 	// 无效的格式 
-	if (0 == BOTP_CheckFormat(botp)) {
+	if (0 == BOTP_CheckFormat(*botp)) {
 		return BOTP_ERROR_FORMAT;
 	}
 	// 无效的协议 
-	if (0 == BOTP_CheckFamilyVaild(botp)) {
+	if (0 == BOTP_CheckFamilyVaild(*botp)) {
 		return BOTP_ERROR_FAMILY;
 	}
 	
 	// 目标地址和本机地址不一致 
-	if (0 == BOTP_CheckDMacAddr(botp)) {
-		switch (BOTP_GetMsgType	(botp)) {
-			case MSG_TYPE_UP:
-			break;
-			
-			case MSG_TYPE_DOWN:
-			break;
-			
-			case MSG_TYPE_ASK:
-			break;
-			
-			case MSG_TYPE_ACK:
-			break;
-			
-			default:
-			return BOTP_ERROR_TYPE;
-		} 
+	if (0 == BOTP_CheckDMacAddr(*botp)) {
+		index = ExtDev_GetDeviceIndexByMac(botp->DMacAddr);
+		botp->Msg.BusID = device[index].Msg.BusID;
+		botp->MsgCount = device[index].Msg.Type;
+        printf("send data\r\n");
+		return BOTP_SendData(botp);
+		
+//		switch (BOTP_GetMsgType	(*botp)) {
+//			case MSG_TYPE_UP:
+//			break;
+//			
+//			case MSG_TYPE_DOWN:
+//			break;
+//			
+//			case MSG_TYPE_ASK:
+//			break;
+//			
+//			case MSG_TYPE_ACK:
+//			break;
+//			
+//			default:
+//			return BOTP_ERROR_TYPE;
+//		} 
 		return BOTP_ERROR_DMAC_ADDR;
 	} 
 	
-	// 数据校验不对 
-	if (0 == BOTP_CheckCrc(botp)) {
-		return BOTP_ERROR_DATA_CRC16;
-	} 
+//	// 数据校验不对 
+//	if (0 == BOTP_CheckCrc(*botp)) {
+//		return BOTP_ERROR_DATA_CRC16;
+//	} 
+//	
+//	switch (BOTP_GetBusID(*botp)) {
+//		case BUS_NET:
+//			BOTP_BusNet(*botp);
+//		break;
+//		
+//		case BUS_SPI:
+//			BOTP_BusSPI(*botp);
+//		break;
+//		
+//		case BUS_UART:
+//			BOTP_BusUart(*botp);
+//		break;
+//		
+//		case BUS_I2C:
+//			BOTP_BusI2C(*botp);
+//		break;
+//		
+//		case BUS_CAN:
+//			BOTP_BusCAN(*botp);
+//		break;
+//		
+//		default:
+//		return BOTP_ERROR_MSG_BUS; 
+//	}
+    
+    if (0 == BOTP_PackExtTest(&(botp->Pack), botp->PackLen)) {
+        printf("ext ok\r\n");
+    } else {
+        printf("ext error\r\n");
+        return BOTP_ERROR_MSG_BUS;
+    }
 	
-	switch (BOTP_GetBusID(botp)) {
-		case BUS_NET:
-			BOTP_BusNet(botp);
-		break;
-		
-		case BUS_SPI:
-			BOTP_BusSPI(botp);
-		break;
-		
-		case BUS_UART:
-			BOTP_BusUart(botp);
-		break;
-		
-		case BUS_I2C:
-			BOTP_BusI2C(botp);
-		break;
-		
-		case BUS_CAN:
-			BOTP_BusCAN(botp);
-		break;
-		
-		default:
-		return BOTP_ERROR_MSG_BUS; 
-	}
-	return BOTP_OK;	
+    return BOTP_OK;	
 }
 
 
 uint16_t BOTP_PackDataFill(Pack_t * p) {
 	int i = 0;
-	uint16_t type;
 	uint32_t data_i;
 	float data_f;
 	double data_d; 
@@ -514,9 +534,6 @@ uint16_t BOTP_PackDataFill(Pack_t * p) {
 		0xf,
 		0x0,
 	};
-	uint8_t u_8;
-	uint16_t u_16;
-	uint32_t u_32;
 	
 	
 	BOTP_ObjToNull(p, i); i+=1;
@@ -543,7 +560,7 @@ uint16_t BOTP_PackDataFill(Pack_t * p) {
 	return i;
 } 
 
-void BOTP_PackExtTest(Pack_t * p, uint16_t len) {
+uint8_t BOTP_PackExtTest(Pack_t * p, uint16_t len) {
 	uint16_t i = 0, u_8 = 0;
 	uint16_t item_len = 0;
 	char res[16];
@@ -557,7 +574,7 @@ void BOTP_PackExtTest(Pack_t * p, uint16_t len) {
 			
 			case PACK_TYPE_TRUE:
 			case PACK_TYPE_FALSE:
-				printf("%bu\r\n", BOTP_BoolToObj(p, i));
+				printf("%bx\r\n", BOTP_BoolToObj(p, i));
 				item_len = 1;
 			break;
 			
@@ -573,12 +590,12 @@ void BOTP_PackExtTest(Pack_t * p, uint16_t len) {
 			break;
 			case PACK_TYPE_INT:
 				BOTP_IntToObj(p, i+1, res);
-				printf("int:\t%x\r\n", *((uint32_t *)(res)));
+				printf("int:\t%lx\r\n", *((uint32_t *)(res)));
 				item_len = 5;
 			break;
 			case PACK_TYPE_LONG:
 				BOTP_LongToObj(p, i+1, res);
-				printf("long:\t%x\r\n", *((uint32_t *)(res)));
+				printf("long:\t%lx\r\n", *((uint32_t *)(res)));
 				item_len = 9;
 			break;
 			case PACK_TYPE_FLOAT:
@@ -631,13 +648,17 @@ void BOTP_PackExtTest(Pack_t * p, uint16_t len) {
 		i += item_len;
 		len -= item_len;
 		item_len = 0;
+        if ((int)len < 0) {
+            return 0xff;
+        }
 	} while (len);
-	
+    
+	return 0x00;
 }
 
-void BOTP_SendData(uint8_t msg, BOTP * b) {
-	uint8_t busId = (msg >> 4) & 0x0f;
-	uint8_t msgType = (msg >> 0) & 0x0f;
+uint8_t BOTP_SendData(BOTP * b) {
+	uint8_t busId = b->Msg.BusID;
+	uint8_t msgType = b->Msg.Type;
 	uint16_t i;
 	
 	wc_assert(IS_BUS(busId));
@@ -666,12 +687,16 @@ void BOTP_SendData(uint8_t msg, BOTP * b) {
 				break;
 				default:
 					printf("msgType:%02bx\r\n", msgType);
+                    return BOTP_ERROR_TYPE;
 				break;
 			}
 		break;
 		
 		default:
 			printf("busId:%02bx\r\n", busId);
-		break;
+            return BOTP_ERROR_MSG_BUS;
+        break;
 	}
+    
+    return BOTP_OK;
 }
