@@ -21,60 +21,6 @@ void TIM2_IRQ(void)         interrupt 12 {
 }
 
 void TIM3_IRQ(void)         interrupt 19 {
-    static uint16_t i = 0;
-    EA = 0;
-    if (i < fre/2) {
-        switch (color) {
-            case LED_R:
-                LED_R_SET();
-                LED_G_RESET();
-                LED_B_RESET();
-            break;
-            
-            case LED_B:
-                LED_B_SET();
-                LED_R_RESET();
-                LED_G_RESET();
-            break;
-            break;
-            
-            case LED_G:
-                LED_G_SET();
-                LED_R_RESET();
-                LED_B_RESET();
-            break;
-            
-            case 4:
-                LED_G_RESET();
-                LED_R_RESET();
-                LED_B_RESET();
-            break;
-            
-            default:
-                
-            break;
-        }
-    } else {
-        switch (color) {
-            case LED_R:
-                LED_R_RESET();
-            break;
-            
-            case LED_B:
-                LED_B_RESET();
-            break;
-            
-            case LED_G:
-                LED_G_RESET();
-            break;
-            
-            default:
-                
-            break;
-        }
-    }
-    i = i >= fre? 0: i+1;
-    EA = 1;
     AUXINTIF &= ~T3IF;                          //清中断标志
 }
 

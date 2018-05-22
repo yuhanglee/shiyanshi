@@ -2,8 +2,7 @@
 #define __BOTP_H__
 #include "mylib.h"
 
-#define BOTP_CRC16		0x2AE6
-#define BOTP_MAC_ADDR	0x12345678
+#define BOTP_MAC_ADDR	0x11111111
 
 
 #define BOTP_OK					0x00
@@ -204,6 +203,108 @@
 												((id) <= 7) \
 											) 
 
+#define BOTP_PackAddZore(p, index, type)			do { \
+														BOTP_PackAddItem(p, index, type, (uint8_t *)(0), 0); \
+													} while (0)
+
+
+#define BOTP_PackAddByte(p, index, type, byte)		do { \
+														BOTP_PackAddItem(p, index, type, (uint8_t *)(byte), 1); \
+													} while (0)
+
+#define BOTP_PackAddWord(p, index, type, word)		do { \
+														BOTP_PackAddItem(p, index, type, (uint8_t *)(word), 2); \
+													} while (0)
+													
+#define BOTP_PackAddInt(p, index, type, int)		do { \
+														BOTP_PackAddItem(p, index, type, (uint8_t *)(int), 4); \
+													} while (0)
+
+
+#define BOTP_PackAddLong(p, index, type, long)		do { \
+														BOTP_PackAddItem(p, index, type, (uint8_t *)(long), 8); \
+													} while (0)
+													
+#define BOTP_PackAddDate(p, index, type, date)		do { \
+														BOTP_PackAddItem(p, index, type, (uint8_t *)(date), 3); \
+													} while (0)
+#define BOTP_PackAddTime(p, index, type, time)		do { \
+														BOTP_PackAddItem(p, index, type, (uint8_t *)(time), 3); \
+													} while (0)
+													
+#define BOTP_PackAddDateTime(p, index, type, datetime)	do { \
+															BOTP_PackAddItem(p, index, type, (uint8_t *)(datetime), 6); \
+														} while (0)
+													
+#define BOTP_PackAddUuid(p, index, type, uuid)		do { \
+														BOTP_PackAddItem(p, index, type, (uint8_t *)(uuid), 16); \
+													} while (0) 
+													
+#define BOTP_ObjToNull(p, 	index)				BOTP_PackAddZore(p, index, PACK_TYPE_NULL)
+#define BOTP_ObjToTrue(p, 	index)				BOTP_PackAddZore(p, index, PACK_TYPE_TRUE)
+#define BOTP_ObjToFalse(p, 	index)				BOTP_PackAddZore(p, index, PACK_TYPE_FALSE)
+#define BOTP_ObjToBool(p, 	index, value)		BOTP_PackAddZore(p, index, ((value)?0x01:0x02))
+#define BOTP_ObjToByte(p, 	index, value)		BOTP_PackAddByte(p, index, PACK_TYPE_BYTE, 		value)
+#define BOTP_ObjToShort(p, 	index, value)		BOTP_PackAddWord(p, index, PACK_TYPE_SHORT, 	value)
+#define BOTP_ObjToInt(p,	index, value)		BOTP_PackAddInt( p, index, PACK_TYPE_INT,		value)
+#define BOTP_ObjToLong(p,  	index, value)		BOTP_PackAddLong(p, index, PACK_TYPE_LONG,		value)
+#define BOTP_ObjToFloat(p, 	index, value)		BOTP_PackAddInt( p, index, PACK_TYPE_FLOAT,		value)
+#define BOTP_ObjToDouble(p,	index, value)		BOTP_PackAddLong(p, index, PACK_TYPE_DOUBLE,	value)
+#define BOTP_ObjToDate(p,   index, value)		BOTP_PackAddDate(p, index, PACK_TYPE_DATE, 		value) 
+#define BOTP_ObjToTime(p,   index, value)		BOTP_PackAddTime(p, index, PACK_TYPE_TIME, 		value) 
+#define BOTP_ObjToDateTime(p,index, value)		BOTP_PackAddDateTime(p, index, PACK_TYPE_DATETIME,	value) 
+#define BOTP_ObjToUuid(p,	index, value)		BOTP_PackAddUuid(p, index, PACK_TYPE_UUID,		value) 
+
+
+#define BOTP_PackGetItemType(p, index)				((p)->Data[(index)])
+
+#define BOTP_PackGetZore(p, index)					((p)->Data[(index)])
+
+#define BOTP_PackGetByte(p, index, byte)			do { \
+														BOTP_PackGetItemData(p, index, (uint8_t *)(byte), 1); \
+													} while (0)
+
+#define BOTP_PackGetWord(p, index, word)			do { \
+														BOTP_PackGetItemData(p, index, (uint8_t *)(word), 2); \
+													} while (0)
+													
+#define BOTP_PackGetInt(p, index, int)				do { \
+														BOTP_PackGetItemData(p, index, (uint8_t *)(int), 4); \
+													} while (0)
+
+
+#define BOTP_PackGetLong(p, index, long)			do { \
+														BOTP_PackGetItemData(p, index, (uint8_t *)(long), 8); \
+													} while (0)
+													
+#define BOTP_PackGetDate(p, index, date)			do { \
+														BOTP_PackGetItemData(p, index, (uint8_t *)(date), 3); \
+													} while (0)
+#define BOTP_PackGetTime(p, index, time)			do { \
+														BOTP_PackGetItemData(p, index, (uint8_t *)(time), 3); \
+													} while (0)
+													
+#define BOTP_PackGetDateTime(p, index, datetime)	do { \
+															BOTP_PackGetItemData(p, index, (uint8_t *)(datetime), 6); \
+														} while (0)
+													
+#define BOTP_PackGetUuid(p, index, uuid)			do { \
+														BOTP_PackGetItemData(p, index, (uint8_t *)(uuid), 16); \
+													} while (0) 
+													
+#define BOTP_NullToObj(p, 	index)				BOTP_PackGetZore(p, index)
+#define BOTP_BoolToObj(p, 	index)				BOTP_PackGetZore(p, index)
+#define BOTP_ByteToObj(p, 	index, value)		BOTP_PackGetByte(p, index,	value)
+#define BOTP_ShortToObj(p, 	index, value)		BOTP_PackGetWord(p, index, 	value)
+#define BOTP_IntToObj(p,	index, value)		BOTP_PackGetInt( p, index,	value)
+#define BOTP_LongToObj(p,  	index, value)		BOTP_PackGetLong(p, index,	value)
+#define BOTP_FloatToObj(p, 	index, value)		BOTP_PackGetInt( p, index,	value)
+#define BOTP_DoubleToObj(p,	index, value)		BOTP_PackGetLong(p, index,	value)
+#define BOTP_DateToObj(p,   index, value)		BOTP_PackGetDate(p, index,	value) 
+#define BOTP_TimeToObj(p,   index, value)		BOTP_PackGetTime(p, index,	value) 
+#define BOTP_DateTimeToObj(p,index, value)		BOTP_PackGetDateTime(p, index,	value) 
+#define BOTP_UuidToObj(p,	index, value)		BOTP_PackGetUuid(p, index,	value) 
+
 typedef struct {
 	uint8_t 	Data[PACK_DATA_LEN];
 	uint16_t 	Crc16;
@@ -233,7 +334,15 @@ typedef struct {
 	uint8_t 	Index;		// 当前设备占用资源索引值 
 	uint32_t 	Mac;		// 当前设备 MAC 地址(CRC32) 
 } ExtDev;
+
 extern ExtDev device[];
+typedef struct {
+    uint8_t     CE;         // CE 引脚状态，每个设备占1bit，共1*8=8bits
+    uint8_t     USE;        // USE 引脚状态，每个设备占1bit，共1*8=8bits
+    uint8_t     INT;        // INT 引脚状态，每个设备占1bit，共1*8=8bits
+    uint32_t    ADDR;       // ADDR 每个设备占3bits，共3*8=24bits
+    uint32_t    BUS;        // 总线协议，每个设备占 3bits ，共 3*8=24 bits
+} ExtDevInfo;
 
 uint16_t CRC16_Calc(char * CrcArray, uint16_t CrcLen);
 void CRC16_CreateTable(void);
@@ -253,6 +362,5 @@ uint8_t ExtDev_GetMsgType(ExtDev * Dev);
 uint8_t ExtDev_GetDeviceIdleIndex(void);
 uint8_t ExtDev_GetDeviceIndexByMac(uint32_t Mac);
 uint8_t ExtDev_GetDeviceIndexByBusIndex(uint8_t BusId, uint8_t Index);
-uint8_t ExtDev_GetBusIdleIndex(uint8_t BusId);
 uint8_t BOTP_SendData(BOTP * b);
 #endif

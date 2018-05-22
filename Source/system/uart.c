@@ -1,10 +1,13 @@
 #include "uart.h"
 #include "stc8.h"
 #include "timer.h"
-bit busy;
-uint8_t wptr = 0;
-uint8_t rptr = 0;
-uint8_t buffer[BUF_MAX_LEN] = {0};
+#include "botp.h"
+
+uint16_t DevBufIndex = 0;
+uint8_t DevBuffer[BUF_MAX_LEN] = {0};
+
+uint16_t UserBufIndex = 0;
+uint8_t UserBuffer[BUF_MAX_LEN] = {0};
 
 
 char putchar(char c) {
@@ -13,24 +16,14 @@ char putchar(char c) {
 }
 void Uart1Isr(void) interrupt 4 using 0 {
     if (RI) {
-        buffer[wptr++] = SBUF;
-        wptr &= 0xff;
         RI = 0;
     }
 }
 
-//void UartInit(void) {
-//    SCON |= 0x50;
-//    Timer2_Init(BRT);
-//    AUXR |= 0x01; // 选择定时器2作为波特率发生器
-//    ES = 1;
-//}
-
 void UartInit(void) {
-    SCON = 0x50;
-    T2L = BRT &0xff;
-    T2H = (BRT >> 8) & 0xff;
-    AUXR = 0x15;
+    SCON |= 0x50;
+    Timer2_Init(BRT);
+    AUXR |= 0x01; // 选择定时器2作为波特率发生器
     ES = 1;
 }
 
@@ -46,7 +39,7 @@ void Uart1SendStr(char *p) {
     }
 }
 
-void Uart1SendHex(uint8_t * buf, uint8_t len) {
+void Uart1SendHex(uint8_t * buf, uint16_t len) {
     uint8_t i;
     
     for (i = 0;i < len;i++) {
@@ -55,61 +48,58 @@ void Uart1SendHex(uint8_t * buf, uint8_t len) {
 }
 
 
-void Uart2Isr() interrupt 8 using 1
-{
+void Uart2Isr(void) interrupt 8 using 1 {
     if (S2CON & 0x01)
     {
         S2CON &= ~0x01;
     }
 }
 
-void Uart2Init()
-{
+void Uart2Init(void){
     S2CON |= 0x50;
     Timer2_Init(BRT);
     IE2 |= 0x01;
 }
 
-void Uart2Send(char dat)
-{
+void Uart2Send(char dat) {
     S2BUF = dat;
     while (!(S2CON & 0x02));
         S2CON &= ~0x02;
 }
 
-void Uart2SendStr(char *p)
-{
+void Uart2SendStr(char *p) {
     while (*p)
     {
         Uart2Send(*p++);
     }
 }
 
-
-void Uart3Isr() interrupt 17 using 1
-{
-    if (S3CON & 0x01)
-    {
-        S3CON &= ~0x01;
+void Uart2SendHex(uint8_t * buf, uint16_t len) {
+    while (len--) {
+        Uart2Send(*buf++);
     }
 }
 
-void Uart3Init()
-{
+void Uart3Isr(void) interrupt 17 using 1 {
+    if (S3CON & 0x01)
+    {
+        UserBuffer[UserBufIndex++] = S3BUF;
+        UserBufIndex &= 0xffff;
+        S3CON &= ~0x01;
+    }
+}
+void Uart3Init(void) {
     S3CON |= 0x10;
     Timer2_Init(BRT);
     IE2 |= 0x08;
 }
-
-void Uart3Send(char dat)
-{
+void Uart3Send(char dat) {
     S3BUF = dat;
     while (!(S3CON & 0x02));
     S3CON &= ~0x02;
 }
 
-void Uart3SendStr(char *p)
-{
+void Uart3SendStr(char *p) {
     while (*p)
     {
         Uart3Send(*p++);
@@ -117,34 +107,43 @@ void Uart3SendStr(char *p)
 }
 
 
+void Uart3SendHex(uint8_t * buf, uint16_t len) {
+    while (len--) {
+        Uart3Send(*buf++);
+    }
+}
 
-void Uart4Isr() interrupt 18 using 1
-{
+void Uart4Isr(void) interrupt 18 using 1 {
     if (S4CON & 0x01)
     {
+        DevBuffer[DevBufIndex++] = S4BUF;
+        DevBufIndex &= 0xffff;
         S4CON &= ~0x01;
     }
 }
 
-void Uart4Init()
-{
+void Uart4Init(void) {
     S4CON |= 0x10;
     Timer2_Init(BRT);
     IE2 |= 0x10;
 }
 
-void Uart4Send(char dat)
-{
+void Uart4Send(char dat) {
     
     S4BUF = dat;
     while (!(S4CON & 0x02));
     S4CON &= ~0x02;
 }
 
-void Uart4SendStr(char *p)
-{
+void Uart4SendStr(char *p) {
     while (*p)
     {
         Uart4Send(*p++);
+    }
+}
+
+void Uart4SendHex(uint8_t * buf, uint16_t len) {
+    while (len--) {
+        Uart4Send(*buf++);
     }
 }

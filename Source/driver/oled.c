@@ -4,6 +4,7 @@
 #include "wc_string.h"
 #include "mylib.h"
 #include "gt20.h"
+#include "string.h"
 
 
 //OLEDµÄÏÔ´æ
