@@ -362,7 +362,7 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>Source Group 1</GroupName>
+          <GroupName>SysDri</GroupName>
           <Files>
             <File>
               <FileName>STARTUP.A51</FileName>
@@ -370,66 +370,45 @@
               <FilePath>.\STARTUP.A51</FilePath>
             </File>
             <File>
-              <FileName>command.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Source\command.c</FilePath>
-            </File>
-            <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Source\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>wc_string.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Source\wc_string.c</FilePath>
-            </File>
-            <File>
               <FileName>uart.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Source\system\uart.c</FilePath>
-            </File>
-            <File>
-              <FileName>24c02.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Source\driver\24c02.c</FilePath>
-            </File>
-            <File>
-              <FileName>iic.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Source\system\iic.c</FilePath>
-            </File>
-            <File>
-              <FileName>oled.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Source\driver\oled.c</FilePath>
             </File>
             <File>
               <FileName>timer.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Source\system\timer.c</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>PerDri</GroupName>
+          <Files>
             <File>
-              <FileName>gt20.c</FileName>
+              <FileName>max485.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Source\driver\gt20.c</FilePath>
-            </File>
-            <File>
-              <FileName>led.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Source\driver\led.c</FilePath>
-            </File>
-            <File>
-              <FileName>key.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Source\driver\key.c</FilePath>
-            </File>
-            <File>
-              <FileName>botp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Source\botp.c</FilePath>
+              <FilePath>..\Source\driver\max485.c</FilePath>
             </File>
           </Files>
+        </Group>
+        <Group>
+          <GroupName>Hal</GroupName>
+        </Group>
+        <Group>
+          <GroupName>App</GroupName>
+          <Files>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Source\main.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>OS_Kernel</GroupName>
+        </Group>
+        <Group>
+          <GroupName>OS_App</GroupName>
         </Group>
       </Groups>
     </Target>

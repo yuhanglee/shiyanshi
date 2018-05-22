@@ -58,7 +58,11 @@ void RunDev(void) {
     
 	int i = 0;
     if (DevBufIndex > 0) {
-        printf("DevBuffer:%bx\r\n", DevBuffer[0]);
+        printf("%u, %bx\r\n", DevBufIndex, DevBuffer[DevBufIndex]);
+        if (DevBuffer[0] != 0x42) {
+            DevBufIndex = 0;
+            return ;
+        }
         Delay_ms(10);
         if (DevBufIndex > 0x1A) {
             pb = (BOTP *)DevBuffer;
@@ -72,7 +76,6 @@ void RunDev(void) {
             } 
             ExtDev_ClearDeviceTable();
         }
-        DevBufIndex = 0;
     }
 }
 
@@ -106,7 +109,7 @@ void main(void) {
     
     UartInit();
     MAX485_Init();
-    Uart4Init();
+    Uart3Init();
     
     EA = 1;
     
@@ -120,21 +123,5 @@ void main(void) {
     while (1) {
         RunDev();
         RunUser();
-        
-//        if (IS_HAVE_DATA()) {
-//            Delay500ms();            
-//            if (wptr > 0x1A) {
-//                pb = (BOTP *)buffer;
-//                if (wptr >= (pb->PackLen + 0x1C)) {
-//                    Delay_ms(10);
-//                    printf("ret:%bu\r\n", BOTP_Exec(pb));
-//                    wptr = 0;
-//                    for (i = 0;i < 256;i++) {
-//                        buffer[i] = 0x00;
-//                    }
-//                } 
-//                ExtDev_ClearDeviceTable();
-//            }
-//        }
     }
 }

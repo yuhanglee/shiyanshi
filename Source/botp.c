@@ -361,6 +361,7 @@ void BOTP_Init(BOTP * botp) {
 
 uint8_t BOTP_Exec(BOTP * botp) {
 	uint8_t index = 0x00;
+    uint16_t i = 0;
 	// 无效的格式 
 	if (0 == BOTP_CheckFormat(*botp)) {
 		return BOTP_ERROR_FORMAT;
@@ -393,49 +394,15 @@ uint8_t BOTP_Exec(BOTP * botp) {
         }
 		return BOTP_ERROR_DMAC_ADDR;
 	} else { // 进行本机解析
-		 if (0 == BOTP_PackExtTest(&(botp->Pack), botp->PackLen)) {
+        for (i = 0;i < botp->PackLen + 0x1C;i++) {
+            printf("%02bx ", ((uint8_t *)botp)[i]);
+        }
+        if (0 == BOTP_PackExtTest(&(botp->Pack), botp->PackLen)) {
 			printf("ext ok\r\n");
 		} else {
 			printf("ext error\r\n");
 		}
 	}
-	
-//	// 数据校验不对 
-//	if (0 == BOTP_CheckCrc(*botp)) {
-//		return BOTP_ERROR_DATA_CRC16;
-//	} 
-//	
-//	switch (BOTP_GetBusID(*botp)) {
-//		case BUS_NET:
-//			BOTP_BusNet(*botp);
-//		break;
-//		
-//		case BUS_SPI:
-//			BOTP_BusSPI(*botp);
-//		break;
-//		
-//		case BUS_UART:
-//			BOTP_BusUart(*botp);
-//		break;
-//		
-//		case BUS_I2C:
-//			BOTP_BusI2C(*botp);
-//		break;
-//		
-//		case BUS_CAN:
-//			BOTP_BusCAN(*botp);
-//		break;
-//		
-//		default:
-//		return BOTP_ERROR_MSG_BUS; 
-//	}
-    
-    if (0 == BOTP_PackExtTest(&(botp->Pack), botp->PackLen)) {
-        printf("ext ok\r\n");
-    } else {
-        printf("ext error\r\n");
-        return BOTP_ERROR_MSG_BUS;
-    }
 	
     return BOTP_OK;	
 }
@@ -604,12 +571,11 @@ uint8_t BOTP_SendData(BOTP * b) {
 		case BUS_UART:
 			switch (device[Index].Index) {
 				case 0:
-                    MAX485_WriteHex((uint8_t *)b, BOTP_GetPackLength(*b) + 0x1C);
-                printf("hh");
+                    Uart3SendHex((uint8_t *)b, BOTP_GetPackLength(*b) + 0x1C);
 				break;
                 
                 case 1:
-                    Uart4SendHex((uint8_t *)b, BOTP_GetPackLength(*b) + 0x1C);
+                    MAX485_WriteHex((uint8_t *)b, BOTP_GetPackLength(*b) + 0x1C);
 				break;
                 
 				default:
