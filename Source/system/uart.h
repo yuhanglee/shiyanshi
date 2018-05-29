@@ -5,15 +5,6 @@
 #define BRT         (65536 - FOSC / 9600 / 4)
 #define BUF_MAX_LEN (1024)
 
-// 接设备  uart4
-extern uint16_t DevBufIndex;
-extern uint8_t DevBuffer[BUF_MAX_LEN];
-
-// 接pad uart3
-extern uint16_t UserBufIndex;
-extern uint8_t UserBuffer[BUF_MAX_LEN];
-
-
 void UartInit(void);
 void Uart1Send(char dat);
 void Uart1SendStr(char *p);

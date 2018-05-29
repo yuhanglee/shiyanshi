@@ -2,7 +2,15 @@
 #define __BOTP_H__
 #include "mylib.h"
 
-#define BOTP_MAC_ADDR	0x11111111
+#define BOTP_MAC_ADDR	0x00000001
+
+
+
+#define UART_PAD        0x00
+#define UART_485_1      0x01
+#define UART_485_2      0x02
+#define UART_485_3      0x03
+#define UART_DEBUG      0x04
 
 
 #define BOTP_OK					0x00
@@ -347,7 +355,7 @@ typedef struct {
 uint16_t CRC16_Calc(char * CrcArray, uint16_t CrcLen);
 void CRC16_CreateTable(void);
 uint16_t BOTP_PackDataFill(Pack_t * p);
-void BOTP_Init(BOTP * botp);
+void BOTP_Init(BOTP * botp, uint32_t SrcMacAddr, uint32_t DecMacAddr);
 uint8_t BOTP_PackExtTest(Pack_t * p, uint16_t len);
 uint8_t BOTP_Exec(BOTP * botp);
 

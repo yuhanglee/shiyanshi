@@ -1,108 +1,98 @@
 #include "led.h"
 #include "wc_string.h"
 #include "string.h"
-#include "stdio.h"
+#include "mylib.h"
 #include "timer.h"
 
+uint32_t StatusFreq = 0x01;			// LED 的起始闪烁频率
 
-static void Delay10us(void) {		//@24.000MHz
-	unsigned char i;
-
-	i = 78;
-	while (--i);
-}
-static void Delay100us(void) {		//@24.000MHz
-	unsigned char i, j;
-
-	i = 4;
-	j = 27;
-	do
-	{
-		while (--j);
-	} while (--i);
-}
-void LED_Init(void) {
-    LED_R_RESET();
-    LED_G_RESET();
-    LED_B_RESET();
-}
-void LED_PWM(uint8_t num, uint8_t c) {
-    uint8_t i, j;
+void FreqAdd(BOTP * pb, uint8_t num) {
+    uint8_t *bc = (uint8_t *)pb;
+    uint32_t * freq = ((uint32_t *)(&(bc[32])));
     
-    for (i = 0;i < 100;i++) {
-        if (i < c) {
-           LED_B_SET();
-//            switch (num) {
-//                case LED_B:
-//                    LED_B_SET();
-//                break;
-//                
-//                case LED_G:
-//                    LED_G_SET();
-//                break;
-//                
-//                case LED_R:
-//                    LED_R_SET();
-//                break;
-//            }
-        } else {
-                    LED_B_RESET();
-//            switch (num) {
-//                case LED_B:
-//                    LED_B_RESET();
-//                break;
-//                
-//                case LED_G:
-//                    LED_G_RESET();
-//                break;
-//                
-//                case LED_R:
-//                    LED_R_RESET();
-//                break;
-//            }
+    if (0xff == bc[29]) {
+        *freq += (((uint32_t)num & 0x3ff) << 20);
+        // 赫兹数 最大是100
+        if ((((*freq) >> 20) & 0x3ff) > 100) {
+            *freq &= ~(0x3ff << 20);
+            *freq |= (100 << 20);
         }
-        Delay10us();
+    } else if (0xff == bc[30]) {
+        *freq += ((uint32_t)num & 0x3ff) << 10;
+        // 赫兹数 最大是100
+        if ((((*freq) >> 10) & 0x3ff) > 100) {
+            *freq &= ~(0x3ff << 10);
+            *freq |= (100 << 10);
+        }
+    } else if (0xff == bc[31]) {
+        *freq += ((uint32_t)num & 0x3ff) << 0;
+        
+        // 赫兹数 最大是100
+        if ((((*freq) >> 0) & 0x3ff) > 100) {
+            *freq &= ~(0x3ff << 0);
+            *freq |= (100 << 0);
+        }
     }
 }
-uint16_t fre = 0;
-uint8_t color = 1;
-void LED_F(uint8_t num, uint16_t f, uint8_t c) {
-    uint16_t i;
-    uint8_t j;
-    fre = 10000 / f;
-    color = num;
+
+void FreqDec(BOTP * pb, uint8_t num) {
+    uint8_t *bc = (uint8_t *)pb;
+    uint32_t * freq = ((uint32_t *)(&(bc[32])));
     
-    printf("cur: %bu %f Hz\r\n", num, 1000.0 / fre * 10);
-    
-//    for (i = 0;i < f;i++) {
-//        if (i < f/2) {
-//                    LED_B_RESET();
-////            LED_PWM(num, c);
-//        } else {
-//                    LED_B_SET();
-////            switch (num) {
-////                case LED_B:
-////                    LED_B_RESET();
-////                break;
-////                
-////                case LED_G:
-////                    LED_G_RESET();
-////                break;
-////                
-////                case LED_R:
-////                    LED_R_RESET();
-////                break;
-////            }
-//            //while (!IS_TIME_OUT_1MS(e_TimTest, 1000));
-//        }
-//        Delay100us();
-//    }
+    if (0xff == bc[29]) {
+        // 赫兹数 最小是0
+        if ((((*freq) >> 20) & 0x3ff) > (uint32_t)num) {
+            *freq -= ((uint32_t)num & 0x3ff) << 20;
+        } else {
+            *freq &= ~(0x3ff << 20);
+        }
+        
+    } else if (0xff == bc[30]) {
+        // 赫兹数 最小是0
+        if ((((*freq) >> 10) & 0x3ff) > (uint32_t)num) {
+            *freq -= ((uint32_t)num & 0x3ff) << 10;
+        } else {
+            *freq &= ~(0x3ff << 10);
+        }
+    } else if (0xff == bc[31]) {
+        // 赫兹数 最小是0
+        if ((((*freq) >> 0) & 0x3ff) > (uint32_t)num) {
+            *freq -= ((uint32_t)num & 0x3ff) << 0;
+        } else {
+            *freq &= ~(0x3ff << 0);
+        }
+    }
 }
 
-
-void LED_ColorToStr(uint8_t r, uint8_t g, uint8_t b, uint8_t *str) {
-    wc_assert(str != NULL);
+void ColorChange(BOTP * pb, uint8_t num) {
+    uint8_t *bc = (uint8_t *)pb;
+    uint8_t index = 29;
+    uint32_t * freq = ((uint32_t *)(&(bc[32])));
     
-    //sprintf(str, "%02bx%02bx%02bx", r, g, b);
+    
+    *freq &= 0xC0000000;
+    if (0xff == bc[index]) {
+        bc[index] = 0x00;
+        bc[index-1] = 0x01;
+    }
+    index++;
+    
+    if (0xff == bc[index]) {
+        bc[index] = 0x00;
+        bc[index-1] = 0xff;
+        *freq |= (StatusFreq << 20);
+    }
+    index++;
+    
+    
+    if (0xff == bc[index]) {
+        bc[index] = 0x00;
+        bc[index-1] = 0xff;
+        *freq |= (StatusFreq << 10);
+    }
+    index++;
+    
+    // 切换记录
+    bc[32] += 0x40;
 }
 

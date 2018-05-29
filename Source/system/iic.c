@@ -1,6 +1,9 @@
 #include "stc8.h"
 #include "iic.h"
 
+/*
+ * 目前只支持 at24c02 使用
+ */
 #define high 1
 #define low 0 
 sbit SCL=P2^5;

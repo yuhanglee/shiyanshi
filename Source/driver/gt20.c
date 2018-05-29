@@ -1,4 +1,4 @@
-#include "stdio.h"
+#include "mylib.h"
 #include "gt20.h"
 
 static void Delay_us(unsigned int us) {
@@ -145,7 +145,6 @@ unsigned char SPI_RecvChar(void) {
 
 void GT20_ReadChar(uint32_t addr, uint8_t len, uint8_t * arr) {
     uint8_t i = 0;
-    //printf("%bx %lx %lx %lx\n", 0x0b, (addr >> 16) & 0xff, (addr >> 8) & 0xff, addr & 0xff);
     
     GT20_SCLK = 0;
     GT20_CS = 0;

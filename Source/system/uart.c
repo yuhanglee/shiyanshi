@@ -3,12 +3,7 @@
 #include "timer.h"
 #include "botp.h"
 
-uint16_t DevBufIndex = 0;
-uint8_t DevBuffer[BUF_MAX_LEN] = {0};
-
-uint16_t UserBufIndex = 0;
-uint8_t UserBuffer[BUF_MAX_LEN] = {0};
-
+#include "WCOS_task.h"
 
 char putchar(char c) {
     Uart1Send(c);
@@ -16,6 +11,8 @@ char putchar(char c) {
 }
 void Uart1Isr(void) interrupt 4 using 0 {
     if (RI) {
+        ((uint8_t *)(TCB[0].ReadBuf))[TCB[0].ReadBufIndex++] = SBUF;
+        TCB[0].ReadBufIndex &= 0xffff;
         RI = 0;
     }
 }
@@ -49,8 +46,9 @@ void Uart1SendHex(uint8_t * buf, uint16_t len) {
 
 
 void Uart2Isr(void) interrupt 8 using 1 {
-    if (S2CON & 0x01)
-    {
+    if (S2CON & 0x01) {
+        ((uint8_t *)(TCB[2].ReadBuf))[TCB[2].ReadBufIndex++] = S2BUF;
+        TCB[2].ReadBufIndex &= 0xffff;
         S2CON &= ~0x01;
     }
 }
@@ -64,12 +62,11 @@ void Uart2Init(void){
 void Uart2Send(char dat) {
     S2BUF = dat;
     while (!(S2CON & 0x02));
-        S2CON &= ~0x02;
+    S2CON &= ~0x02;
 }
 
 void Uart2SendStr(char *p) {
-    while (*p)
-    {
+    while (*p) {
         Uart2Send(*p++);
     }
 }
@@ -81,10 +78,9 @@ void Uart2SendHex(uint8_t * buf, uint16_t len) {
 }
 
 void Uart3Isr(void) interrupt 17 using 1 {
-    if (S3CON & 0x01)
-    {
-        UserBuffer[UserBufIndex++] = S3BUF;
-        UserBufIndex &= 0xffff;
+    if (S3CON & 0x01) {
+        ((uint8_t *)(TCB[0].ReadBuf))[TCB[0].ReadBufIndex++] = S3BUF;
+        TCB[0].ReadBufIndex &= 0xffff;
         S3CON &= ~0x01;
     }
 }
@@ -100,8 +96,7 @@ void Uart3Send(char dat) {
 }
 
 void Uart3SendStr(char *p) {
-    while (*p)
-    {
+    while (*p) {
         Uart3Send(*p++);
     }
 }
@@ -114,10 +109,9 @@ void Uart3SendHex(uint8_t * buf, uint16_t len) {
 }
 
 void Uart4Isr(void) interrupt 18 using 1 {
-    if (S4CON & 0x01)
-    {
-        DevBuffer[DevBufIndex++] = S4BUF;
-        DevBufIndex &= 0xffff;
+    if (S4CON & 0x01) {
+        ((uint8_t *)(TCB[1].ReadBuf))[TCB[1].ReadBufIndex++] = S4BUF;
+        TCB[1].ReadBufIndex &= 0xffff;
         S4CON &= ~0x01;
     }
 }

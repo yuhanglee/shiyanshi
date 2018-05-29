@@ -1,10 +1,11 @@
 #include "oled.h"
 #include "uart.h"
-#include "stdio.h"
+#include "mylib.h"
 #include "wc_string.h"
 #include "mylib.h"
 #include "gt20.h"
 #include "string.h"
+#include "stdlib.h"
 
 
 //OLEDµÄÏÔ´æ
@@ -308,7 +309,7 @@ void OLED_Refresh_Gram(void) {
 }
 
 
-void OLED_DisplayIcon(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t * ch, uint16_t len) {
+void OLED_DisplayIcon(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t * ch, uint16_t len, uint8_t Nor) {
     uint8_t i;
     uint8_t n = x << 3; // x*8
     
@@ -317,24 +318,31 @@ void OLED_DisplayIcon(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t * ch, 
     wc_assert((x + w / 8) <= OLED_X_MAX);
     wc_assert((y + h / 16) <= OLED_Y_MAX);
     
-    for (i = 0;i < w;++i) {
-        OLED_GRAM[n + i][y << 1]     = ch[i];
-        OLED_GRAM[n + i][(y << 1) + 1] = ch[i + (len / 2)];
-    }
+	if (0 == Nor) {
+		for (i = 0;i < w;++i) {
+			OLED_GRAM[n + i][y << 1]     = ch[i];
+			OLED_GRAM[n + i][(y << 1) + 1] = ch[i + (len / 2)];
+		}
+	} else {
+		for (i = 0;i < w;++i) {
+			OLED_GRAM[n + i][y << 1]     = ~ch[i];
+			OLED_GRAM[n + i][(y << 1) + 1] = ~ch[i + (len / 2)];
+		}
+	}
 }
 
 void OLED_DisplayLogo(void) {
-    OLED_DisplayIcon(0, 0, 128, 16, logo[0], sizeof(logo[0]));
-    OLED_DisplayIcon(0, 1, 128, 16, logo[1], sizeof(logo[0]));
-    OLED_DisplayIcon(0, 2, 128, 16, logo[2], sizeof(logo[0]));
-    OLED_DisplayIcon(0, 3, 128, 16, logo[3], sizeof(logo[0]));
+    OLED_DisplayIcon(0, 0, 128, 16, logo[0], sizeof(logo[0]), 0);
+    OLED_DisplayIcon(0, 1, 128, 16, logo[1], sizeof(logo[0]), 0);
+    OLED_DisplayIcon(0, 2, 128, 16, logo[2], sizeof(logo[0]), 0);
+    OLED_DisplayIcon(0, 3, 128, 16, logo[3], sizeof(logo[0]), 0);
 }
 
 /*
  * x  0-15
  * y  0-3
  */
-void OLED_DisplayChar(uint8_t x, uint8_t y, uint8_t ch) {
+void OLED_DisplayChar(uint8_t x, uint8_t y, uint8_t ch, uint8_t Nor) {
     uint8_t i;
     uint8_t n = x << 3; // x*8
     uint8_t index = ch - ' ';
@@ -342,41 +350,54 @@ void OLED_DisplayChar(uint8_t x, uint8_t y, uint8_t ch) {
     
     wc_assert(x < OLED_X_MAX);
     wc_assert(y < OLED_Y_MAX);
-    
-    for (i = 0;i < ASCII_SIZE_Y / 2;++i) {
-        OLED_GRAM[n + i][y*2] = ascii[index][i];
-        OLED_GRAM[n + i][y*2 + 1] = ascii[index][i + ASCII_SIZE_Y / 2];
-    }
+    if (0 == Nor) {
+		for (i = 0;i < ASCII_SIZE_Y / 2;++i) {
+			OLED_GRAM[n + i][y*2] = ascii[index][i];
+			OLED_GRAM[n + i][y*2 + 1] = ascii[index][i + ASCII_SIZE_Y / 2];
+		}
+	} else {
+		for (i = 0;i < ASCII_SIZE_Y / 2;++i) {
+			OLED_GRAM[n + i][y*2] = ~ascii[index][i];
+			OLED_GRAM[n + i][y*2 + 1] = ~ascii[index][i + ASCII_SIZE_Y / 2];
+		}
+	}
 }
-void OLED_DisplayStr(uint8_t x, uint8_t y, uint8_t * str) {
+void OLED_DisplayStr(uint8_t x, uint8_t y, uint8_t * str, uint8_t Nor) {
     uint8_t len = str_len(str);
     uint8_t i;
     
     wc_assert(x < OLED_X_MAX);
     wc_assert(y < OLED_Y_MAX);
     for (i = 0;(i < len) && ((x + i) < OLED_X_MAX);++i) {
-        OLED_DisplayChar(x+i, y, str[i]);
+        OLED_DisplayChar(x+i, y, str[i], Nor);
     }
     
 }
 
-void OLED_DispalyHanzi(uint8_t x, uint8_t y, uint8_t msb, uint8_t lsb) {
+void OLED_DispalyHanzi(uint8_t x, uint8_t y, uint8_t msb, uint8_t lsb, uint8_t Nor) {
+    uint8_t i, temp;
 	uint8_t dat[32];
     
     GT20_ReadChar(GT20FontAddr(msb, lsb), 16*16/8, dat);
-    OLED_DisplayIcon(x, y, 16, 16, dat, 16*16/8);
+    OLED_DisplayIcon(x, y, 16, 16, dat, 16*16/8, Nor);
 }
 
-void OLED_DisplayHanziStr(u8 x, u8 y, char * disStr) {
+void OLED_DisplayHanziStr(u8 x, u8 y, char * disStr, uint8_t Nor) {
 	u8 i;
 	u8 len = str_len(disStr);
 	u8 msb, msl;
-	
+    
     wc_assert(len <= OLED_X_MAX);
-	for (i = 0;i < len;i+=2) {
-		msb = disStr[i];
-		msl = disStr[i + 1];
-		OLED_DispalyHanzi(x+i, y, msb, msl);
+	for (i = 0;i < len;) {
+        if ((disStr[i] >= ' ') && (disStr[i] <= '~')) { // ASCII
+            OLED_DisplayChar(x+i, y, disStr[i], Nor);
+            i++;
+        } else {
+            msb = disStr[i];
+            msl = disStr[i + 1];
+            OLED_DispalyHanzi(x+i, y, msb, msl, Nor);
+            i += 2;
+        }
 	}
 }
 void OLED_Clear(void) {
