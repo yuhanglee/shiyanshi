@@ -32,19 +32,21 @@ uint8_t KEY_Scan(void) {
 
 
 
-
+// 按键 1 执行函数
 void KeyFunc1(BOTP * b) {
 	FreqAdd(b, 1);
 }
-
+// 按键 2 执行函数
 void KeyFunc2(BOTP * b) {
 	FreqDec(b, 1);
 }
 
+// 按键 3 执行函数
 void KeyFunc3(BOTP * b) {
 	ColorChange(b, 1);
 }
 
+// 按键 4 执行函数
 void KeyFunc4(BOTP * b) {
 	StatusFreq = 100 - StatusFreq;
 }

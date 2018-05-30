@@ -132,10 +132,10 @@
 #define PACK_TYPE_OBJ_NOT_NULL	(PACK_TYPE_OBJ + 2)
 #define PACK_TYPE_OBJ_NULL_STR	(PACK_TYPE_OBJ + 3)
 #define PACK_TYPE_OBJ_STR		(PACK_TYPE_OBJ + 4)
-#define PACK_TYPE_ARRAY_SMALL	0x80				// »ù±¾ÀàĞÍµÄĞ¡Êı×é ³¤¶È×î´óÎª 255 
-#define PACK_TYPE_ARRAY_LONG	0xA0				// »ù±¾ÀàĞÍµÄ´óÊı×é ³¤¶È×î´óÎª 65535 
-#define PACK_TYPE_CLCT_NULL		0xC0				// ÎŞÀàĞÍµÄ²É¼¯ 
-#define PACK_TYPE_CLCT			0xE0 				// ÓĞÀàĞÍµÄ²É¼¯
+#define PACK_TYPE_ARRAY_SMALL	0x80				// æœ€å¤§é•¿åº¦       255 
+#define PACK_TYPE_ARRAY_LONG	0xA0				// æœ€å¤§é•¿åº¦       65535 
+#define PACK_TYPE_CLCT_NULL		0xC0				
+#define PACK_TYPE_CLCT			0xE0 				
 
 #define IS_PACK_TYPE(t)			(\
 									PACK_TYPE_NULL 				== (t) || \
@@ -144,12 +144,12 @@
 									PACK_TYPE_BYTE				== (t) || \
 									PACK_TYPE_SHORT				== (t) || \
 									PACK_TYPE_INT				== (t) || \
-									PACK_PYTE_LONG				== (t) || \
-									PACK_PYTE_FLOAT				== (t) || \
-									PACK_PYTE_DOUBLE			== (t) || \
-									PACK_PYTE_DATE				== (t) || \
-									PACK_PYTE_TIME				== (t) || \
-									PACK_PYTE_DATETIME			== (t) || \
+									PACK_TYPE_LONG				== (t) || \
+									PACK_TYPE_FLOAT				== (t) || \
+									PACK_TYPE_DOUBLE			== (t) || \
+									PACK_TYPE_DATE				== (t) || \
+									PACK_TYPE_TIME				== (t) || \
+									PACK_TYPE_DATETIME			== (t) || \
 									PACK_TYPE_UUID				== (t) || \
 									PACK_TYPE_STRING			== (t) || \
 									PACK_TYPE_TEXT				== (t) || \
@@ -324,32 +324,32 @@ struct _msg{
 };
 typedef struct {
 	uint32_t	 	Header; 		// "BOTP"
-	uint16_t 		Family;			// ushort ÀàĞÍ  	0x0000 Î¢³©    0xffff ×ÔÓÉĞ­Òé
-	uint8_t 		Version;		// °æ±¾			 	0x00   ¿ª·¢°æ±¾
-	struct _msg		Msg;			// ÏûÏ¢ÀàĞÍ 
-	uint32_t 		SMacAddr;				// ´ÓÉè±¸macµØÖ· 
- 	uint32_t 		MsgCount;				// ÏûÏ¢¼ÆÊı
- 	uint32_t 		DMacAddr;				// Ä¿±êÉè±¸macµØÖ·  ¹©ÖĞ¼ÌÊ¹ÓÃ
-	uint32_t 		QuickCmd;				// ¿ìËÙÖ¸Áî
-	uint16_t 		PackLen;				// Êı¾İ³¤¶È
+	uint16_t 		Family;			// ushort å¾®ç•… 	 0x0000   è‡ªç”±è‡ªæ¶æ„       0xffff
+	uint8_t 		Version;		// uchar  å¼€å‘ç‰ˆ    0x00     æ­£å¼ç‰ˆï¼Œä»1å¼€å§‹
+	struct _msg		Msg;			// è¡¨ç¤ºæ€»çº¿ç±»å‹å’Œæ¶ˆæ¯ç±»å‹
+	uint32_t 		SMacAddr;		// ä¸»è®¾å¤‡åœ°å€Ö· 
+ 	uint32_t 		MsgCount;		// æ¶ˆæ¯è®¡æ•°
+ 	uint32_t 		DMacAddr;		// ç›®æ ‡åœ°å€
+	uint32_t 		QuickCmd;		// å¿«é€ŸæŒ‡ä»¤
+	uint16_t 		PackLen;		// åŒ…ä½“é•¿åº¦ä¸åŒ…æ‹¬æ ¡éªŒç 
 	Pack_t 	 		Pack;
 } BOTP;
 
 
 
 typedef struct {
-	struct _msg	Msg; 		// µ±Ç°Éè±¸ÏûÏ¢ÀàĞÍ  ²Î¿¼ BOTP µÄÏûÏ¢ÀàĞÍ
-	uint8_t 	Index;		// µ±Ç°Éè±¸Õ¼ÓÃ×ÊÔ´Ë÷ÒıÖµ 
-	uint32_t 	Mac;		// µ±Ç°Éè±¸ MAC µØÖ·(CRC32) 
+	struct _msg	Msg; 		// æ€»çº¿ç±»å‹å’Œæ¶ˆæ¯ç±»å‹
+	uint8_t 	Index;		// ç´¢å¼•å€¼ï¼Œä»£è¡¨ç‰©ç†ä¸Šçš„æ ‡å·
+	uint32_t 	Mac;		// è®¾å¤‡åœ°å€
 } ExtDev;
 
 extern ExtDev device[];
 typedef struct {
-    uint8_t     CE;         // CE Òı½Å×´Ì¬£¬Ã¿¸öÉè±¸Õ¼1bit£¬¹²1*8=8bits
-    uint8_t     USE;        // USE Òı½Å×´Ì¬£¬Ã¿¸öÉè±¸Õ¼1bit£¬¹²1*8=8bits
-    uint8_t     INT;        // INT Òı½Å×´Ì¬£¬Ã¿¸öÉè±¸Õ¼1bit£¬¹²1*8=8bits
-    uint32_t    ADDR;       // ADDR Ã¿¸öÉè±¸Õ¼3bits£¬¹²3*8=24bits
-    uint32_t    BUS;        // ×ÜÏßĞ­Òé£¬Ã¿¸öÉè±¸Õ¼ 3bits £¬¹² 3*8=24 bits
+    uint8_t     CE;         // CE   ç‰‡é€‰ä¿¡å·      1bit  1*8=8bits
+    uint8_t     USE;        // USE  ä½¿ç”¨ä¿¡å·      1bit  1*8=8bits
+    uint8_t     INT;        // INT  äº‹ä»¶ä¸­æ–­      1bit  1*8=8bits
+    uint32_t    ADDR;       // ADDR åœ°å€        3bits 3*8=24bits
+    uint32_t    BUS;        //      æ€»çº¿        3bits 3*8=24bits
 } ExtDevInfo;
 
 uint16_t CRC16_Calc(char * CrcArray, uint16_t CrcLen);

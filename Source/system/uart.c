@@ -20,7 +20,7 @@ void Uart1Isr(void) interrupt 4 using 0 {
 void UartInit(void) {
     SCON |= 0x50;
     Timer2_Init(BRT);
-    AUXR |= 0x01; // 选择定时器2作为波特率发生器
+    AUXR |= 0x01; 
     ES = 1;
 }
 

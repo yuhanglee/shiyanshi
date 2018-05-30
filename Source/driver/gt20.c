@@ -154,7 +154,7 @@ void GT20_ReadChar(uint32_t addr, uint8_t len, uint8_t * arr) {
     SPI_SendChar((addr >> 16) & 0xff);
     SPI_SendChar((addr >> 8) & 0xff);
     SPI_SendChar(addr & 0xff);
-    SPI_SendChar(00);
+    SPI_SendChar(0x00);			// 这个位置的0x00 不可以去掉
     for (i = 0;i < len;i++) {
         arr[i] = (uint8_t)SPI_RecvChar();
     }

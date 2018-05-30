@@ -12,15 +12,17 @@
 #define AT24C128	16383
 #define AT24C256	32767  
 
-//?a°§°È°„?®∫1®Æ?¶Ã?®∫?24c02°Í??®¥®∞??°ß®∞?EE_TYPE?aAT24C02
-#define EE_TYPE AT24C256
+// EEPROM ÁöÑËäØÁâáÂûãÂè∑
+#define EE_TYPE 	AT24C256
+#define ADDR		0x00
+#define READ		(0xA0 | ADDR | 0x01)
+#define WRITE		(0xA0 | ADDR)
 
-u8 AT24CXX_ReadOneByte(u16 ReadAddr);							//???°ß¶Ã??°§?®¢®®?®∞???°¡??®≤
-void AT24CXX_WriteOneByte(u16 WriteAddr,u8 DataToWrite);		//???°ß¶Ã??°§D°‰®®?®∞???°¡??®≤
-void AT24CXX_WriteLenByte(u16 WriteAddr,u32 DataToWrite,u8 Len);//???°ß¶Ã??°§?a®∫?D°‰®®????°ß3°Ë?®®¶Ã?®∫y?Y
-u32 AT24CXX_ReadLenByte(u16 ReadAddr,u8 Len);					//???°ß¶Ã??°§?a®∫??®¢®®????°ß3°Ë?®®®∫y?Y
-void AT24CXX_Write(u16 WriteAddr,u8 *pBuffer,u16 NumToWrite);	//°‰®Æ???°ß¶Ã??°§?a®∫?D°‰®®????°ß3°Ë?®®¶Ã?®∫y?Y
-void AT24CXX_Read(u16 ReadAddr,u8 *pBuffer,u16 NumToRead);   	//°‰®Æ???°ß¶Ã??°§?a®∫??®¢3????°ß3°Ë?®®¶Ã?®∫y?Y
-
-u8 AT24CXX_Check(void);  //?®¨2®¶?°¬?t
+u8 AT24CXX_ReadOneByte(u16 ReadAddr);
+void AT24CXX_WriteOneByte(u16 WriteAddr,u8 DataToWrite);
+void AT24CXX_WriteLenByte(u16 WriteAddr,u32 DataToWrite,u8 Len);
+u32 AT24CXX_ReadLenByte(u16 ReadAddr,u8 Len);
+void AT24CXX_Write(u16 WriteAddr,u8 *pBuffer,u16 NumToWrite);	
+void AT24CXX_Read(u16 ReadAddr,u8 *pBuffer,u16 NumToRead);
+u8 AT24CXX_Check(void); 
 

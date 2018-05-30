@@ -4,9 +4,11 @@
 #include "uart.h"
 #include "max485.h"
 
+// 大小端模式选择
 #define BIG_ENCODE
 //#define SMALL_ENCODE
 
+// CRC 校验
 static const uint16_t CRC16_TABLE[256] = {
     0x0000,0x1021,0x2042,0x3063,0x4084,0x50a5,0x60c6,0x70e7,
     0x8108,0x9129,0xa14a,0xb16b,0xc18c,0xd1ad,0xe1ce,0xf1ef,
@@ -42,10 +44,11 @@ static const uint16_t CRC16_TABLE[256] = {
     0x6e17,0x7e36,0x4e55,0x5e74,0x2e93,0x3eb2,0x0ed1,0x1ef0
 };
 
+// crc16 校验算法，返回CRC16校验值
 uint16_t CRC16_Calc(char * CrcArray, uint16_t CrcLen) {
-	uint16_t CrcRet = 0x0;
+	uint16_t CrcRet = 0x00;
 	
-	for (;CrcLen;CrcLen--) {
+	for (; CrcLen; CrcLen--) {
 		CrcRet = CRC16_TABLE[((CrcRet >> 8)  ^ *CrcArray++) & 0xff] ^ (CrcRet << 8);
 	}
 	
@@ -54,6 +57,7 @@ uint16_t CRC16_Calc(char * CrcArray, uint16_t CrcLen) {
 
 
 #if defined BIG_ENCODE
+// BOTP 协议 数据包获取一个item值
 void BOTP_PackGetItemData(Pack_t * p, uint8_t index, uint8_t * dat, uint8_t len) {
 	uint8_t i = 0;
 	
@@ -64,6 +68,7 @@ void BOTP_PackGetItemData(Pack_t * p, uint8_t index, uint8_t * dat, uint8_t len)
     }
 }
 
+// BOTP 协议 数据包添加一个item值
 void BOTP_PackAddItem(Pack_t * p, uint8_t index, uint8_t type, uint8_t * value, uint8_t len) {
 	uint8_t i = 0;
 	
@@ -75,7 +80,9 @@ void BOTP_PackAddItem(Pack_t * p, uint8_t index, uint8_t type, uint8_t * value, 
         }
     }
 }
+
 #elif defined SMALL_ENCODE
+
 void BOTP_PackGetItemData(Pack_t * p, uint8_t index, uint8_t * dat, uint8_t len) {
 	uint8_t i = 0;
 	
@@ -97,6 +104,7 @@ void BOTP_PackAddItem(Pack_t * p, uint8_t index, uint8_t type, uint8_t * value, 
         }
     }
 }
+
 #else
 	#error "Please define encode"
 #endif											
@@ -122,6 +130,7 @@ void ExtDev_Init(ExtDev * Dev) {
 	Dev->Mac		= 0x00000000;
 }
 
+// 根据 busid 获取 device 的索引值
 uint8_t ExtDev_GetBusIdleIndex(uint8_t BusId) {
 	uint8_t i;
 	uint8_t index = 0xff;
@@ -219,7 +228,7 @@ uint8_t ExtDev_GetDeviceIndexByBusIndex(uint8_t BusId, uint8_t Index) {
 
 
 
-
+// 清除device数组，将重复设备数据的保留第一个，其余的删除
 void ExtDev_ClearDeviceTable(void) {
     uint8_t i, j;
     
@@ -247,25 +256,25 @@ void BOTP_Init(BOTP * botp, uint32_t SrcMacAddr, uint32_t DecMacAddr) {
 uint8_t BOTP_Exec(BOTP * botp) {
 	uint8_t index = 0x00;
     uint16_t i = 0;
-	// ��Ч�ĸ�ʽ 
+	// 格式
 	if (0 == BOTP_CheckFormat(*botp)) {
 		return BOTP_ERROR_FORMAT;
 	}
-	// ��Ч��Э�� 
+	// 协议簇 
 	if (0 == BOTP_CheckFamilyVaild(*botp)) {
 		return BOTP_ERROR_FAMILY;
 	}
 	
-	// Ŀ���ַ�ͱ�����ַ��һ�� 
+	// 是否是本机数据
 	if (0 == BOTP_CheckDMacAddr(*botp)) {
 		index = ExtDev_GetDeviceIndexByMac(botp->DMacAddr);
-        if (BOTP_ERROR_INDEX != index) { // �������豸�����ҵ��豸
+        if (BOTP_ERROR_INDEX != index) { // 进行转发
             botp->Msg.BusID = device[index].Msg.BusID;
             botp->Msg.Type = device[index].Msg.Type;
-            return BOTP_SendData(botp);
-        } else {
-            index = ExtDev_GetDeviceIdleIndex(); // ��ȡ�����豸����
-            if (BOTP_ERROR_INDEX != index) {    // ������ȡ
+            return BOTP_SendData(botp);	// 发送
+        } else { // device 数组中没有保存当前dmac地址，将这个dmac地址保存到device数组中
+            index = ExtDev_GetDeviceIdleIndex(); 
+            if (BOTP_ERROR_INDEX != index) {
                 ExtDev_SetBusId(&(device[index]), botp->Msg.BusID);
                 ExtDev_SetMsgType(&(device[index]), botp->Msg.Type);
                 ExtDev_SetBusIndex(&(device[index]), ExtDev_GetBusIdleIndex(botp->Msg.BusID));
@@ -278,7 +287,7 @@ uint8_t BOTP_Exec(BOTP * botp) {
             print_debug("idle device index error\r\n");
         }
 		return BOTP_ERROR_DMAC_ADDR;
-	} else { // ���б�������
+	} else {
         if (0 == BOTP_PackExtTest(&(botp->Pack), botp->PackLen)) {
 			print_debug("ext ok\r\n");
 		} else {
@@ -289,7 +298,7 @@ uint8_t BOTP_Exec(BOTP * botp) {
     return BOTP_OK;	
 }
 
-
+// 数据包的填充测试
 uint16_t BOTP_PackDataFill(Pack_t * p) {
 	int i = 0;
 	uint32_t data_i;
@@ -338,6 +347,7 @@ uint16_t BOTP_PackDataFill(Pack_t * p) {
 	return i;
 } 
 
+// pack数据包的解析测试
 uint8_t BOTP_PackExtTest(Pack_t * p, uint16_t len) {
 	uint16_t i = 0, u_8 = 0;
 	uint16_t item_len = 0;
@@ -439,6 +449,7 @@ uint8_t BOTP_PackExtTest(Pack_t * p, uint16_t len) {
 	return 0x00;
 }
 
+// 数据的转发
 uint8_t BOTP_SendData(BOTP * b) {
     uint8_t Index = ExtDev_GetDeviceIndexByMac(b->DMacAddr);
     
