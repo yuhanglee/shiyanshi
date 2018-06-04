@@ -29,6 +29,7 @@ typedef int32_t         s32;
 #define high    1
 
 
+//#define DEBUG
 
 #ifdef DEBUG
     #define DEBUG_PRINT                                 // 定义调试输出
@@ -41,7 +42,7 @@ typedef int32_t         s32;
     #define print_warn             printf
     #define print_debug            printf
 #else 
-	#define print_error
+	#define print_error			   printf
 	#define print_info
 	#define print_warn
 	#define print_debug

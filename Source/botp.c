@@ -1,3 +1,26 @@
+//
+//                            _ooOoo_
+//                           o8888888o
+//                           88" . "88
+//                           (| -_- |)
+//                           O\  =  /O
+//                        ____/`---'\____
+//                      .'  \\|     |//  `.
+//                     /  \\|||  :  |||//  \
+//                    /  _||||| -:- |||||-  \
+//                    |   | \\\  -  /// |   |
+//                    | \_|  ''\---/''  |   |
+//                    \  .-\__  `-`  ___/-. /
+//                  ___`. .'  /--.--\  `. . __
+//               ."" '<  `.___\_<|>_/___.'  >'"".
+//              | | :  `- \`.;`\ _ /`;.`/ - ` : | |
+//              \  \ `-.   \_ __\ /__ _/   .-` /  /
+//         ======`-.____`-.___\_____/___.-`____.-'======
+//                            `=---='
+//        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//                      Buddha Bless, No Bug !
+//
+
 #include "string.h"
 #include "stdlib.h"
 #include "botp.h"
@@ -268,6 +291,9 @@ uint8_t BOTP_Exec(BOTP * botp) {
 	// 是否是本机数据
 	if (0 == BOTP_CheckDMacAddr(*botp)) {
 		index = ExtDev_GetDeviceIndexByMac(botp->DMacAddr);
+		print_debug("%lx\r\n", botp->DMacAddr);
+		print_debug("index:%bx\r\n", index);
+	
         if (BOTP_ERROR_INDEX != index) { // 进行转发
             botp->Msg.BusID = device[index].Msg.BusID;
             botp->Msg.Type = device[index].Msg.Type;
@@ -457,7 +483,7 @@ uint8_t BOTP_SendData(BOTP * b) {
 		case BUS_UART:
 			switch (device[Index].Index) {
 				case UART_PAD:
-                    Uart1SendHex((uint8_t *)b, BOTP_GetPackLength(*b) + 0x1C);
+                    Uart3SendHex((uint8_t *)b, BOTP_GetPackLength(*b) + 0x1C);
 				break;
                 
                 case UART_485_1:

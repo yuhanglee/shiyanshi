@@ -15,10 +15,10 @@ typedef struct TaskTCB {
 	void				* FuncArgc; 		// 保存数据，指针类型，需强制转换
 	void 				* ReadBuf;			// 读取缓冲区指针
 	void				* WriteBuf;			// 写入缓冲区指针
-	uint32_t			RunStatus;			// 运行状态机，由任务进行控制
-	uint16_t			ReadBufIndex;		// 读取缓冲区当前下标
-	uint16_t 			WriteBufIndex;		// 写入缓冲区当前下标
-	uint8_t 			TaskStatus;			// 任务状态
+	volatile uint32_t	RunStatus;			// 运行状态机，由任务进行控制
+ 	volatile uint16_t	ReadBufIndex;		// 读取缓冲区当前下标
+	volatile uint16_t 	WriteBufIndex;		// 写入缓冲区当前下标
+	volatile uint8_t 	TaskStatus;			// 任务状态
 } WCOS_TASK_CB;
 
 extern WCOS_TASK_CB TCB[];

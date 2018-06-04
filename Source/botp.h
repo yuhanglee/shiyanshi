@@ -348,7 +348,7 @@ typedef struct {
     uint8_t     CE;         // CE   片选信号      1bit  1*8=8bits
     uint8_t     USE;        // USE  使用信号      1bit  1*8=8bits
     uint8_t     INT;        // INT  事件中断      1bit  1*8=8bits
-    uint32_t    ADDR;       // ADDR 地址        3bits 3*8=24bits
+    uint32_t    ADD;		// ADDR 地址        3bits 3*8=24bits
     uint32_t    BUS;        //      总线        3bits 3*8=24bits
 } ExtDevInfo;
 

@@ -61,16 +61,16 @@ void TCB_Init(void) {
     TCB[4].ReadBuf              =   (void *)_DebugReadBuf;
     TCB[4].WriteBuf             =   (void *)_DebugWriteBuf;
 		
-		memset(TCB[0].ReadBuf, 0, 256);
-		memset(TCB[0].WriteBuf, 0, 256);
-		memset(TCB[1].ReadBuf, 0, 256);
-		memset(TCB[1].WriteBuf, 0, 256);
-		memset(TCB[2].ReadBuf, 0, 256);
-		memset(TCB[2].WriteBuf, 0, 256);
-		memset(TCB[3].ReadBuf, 0, 256);
-		memset(TCB[3].WriteBuf, 0, 256);
-		memset(TCB[4].ReadBuf, 0, 256);
-		memset(TCB[4].WriteBuf, 0, 256);
+	memset(TCB[0].ReadBuf, 0, 256);
+	memset(TCB[0].WriteBuf, 0, 256);
+	memset(TCB[1].ReadBuf, 0, 256);
+	memset(TCB[1].WriteBuf, 0, 256);
+	memset(TCB[2].ReadBuf, 0, 256);
+	memset(TCB[2].WriteBuf, 0, 256);
+	memset(TCB[3].ReadBuf, 0, 256);
+	memset(TCB[3].WriteBuf, 0, 256);
+	memset(TCB[4].ReadBuf, 0, 256);
+	memset(TCB[4].WriteBuf, 0, 256);
 }
 
 
@@ -204,28 +204,25 @@ void RunUser(void) {
     BOTP * pb;
 	int i = 0;
     uint8_t index = 0;
+	uint8_t ret = 0;
     
-    for (index = 0;index < 5;index++) {
+    for (index = 0;index < 2;index++) {
         if (TCB[index].ReadBufIndex > 0) {
             Delay_ms(3);
             if (TCB[index].ReadBufIndex > 0x1A) {
                 pb = (BOTP *)(TCB[index].ReadBuf);
                 if (TCB[index].ReadBufIndex >= (pb->PackLen + 0x1C)) {
                     Delay_ms(3);
-                    print_debug("User ret:%bu\r\n", BOTP_Exec(pb));
+					ret = BOTP_Exec(pb);
                     TCB[index].ReadBufIndex = 0;
-                    
-					for (i = 0;i < 256;i++) {
-						print_debug("%02bx ", ((uint8_t *)pb)[i]);
-					}
+	                if (0x12345678 == BOTP_GetDMacAddr(*pb)) {
+	                    memcpy(&b, pb, sizeof(b));
+	                }
 					for (i = 0;i < 256;i++) {
                         ((uint8_t *)(TCB[index].ReadBuf))[i] = 0x00;
                     }
                 } 
                 ExtDev_ClearDeviceTable();
-                if (0x12345678 == BOTP_GetDMacAddr(*pb)) {
-                    memcpy(&b, pb, sizeof(b));
-                }
 			}
 		}
     }
@@ -300,7 +297,7 @@ void RunUser(void) {
 //			}
 //			// 更改屏幕显示
 //			OLED_Clear();
-//			if (BOOT_MENU == (menu.value & 0xf0)) {
+//			if (BOOT_MENU == (menu.value & 0xf0)) { 
 //				OLED_DisplayHanziStr(0, 0, "自检测", 		(menu.value & 0x0f) == index++);
 //				OLED_DisplayHanziStr(0, 1, "闪烁频率设置", 	(menu.value & 0x0f) == index++);
 //			} else if (BOOT_MENU_FREQ_SET == (menu.value & 0xf0)) {
@@ -320,7 +317,7 @@ void main(void) {
     SystemInit();
     HardwareInit();
 	TCB_Init();		// 任务初始化
-    
+     
     memset(&b, 0, sizeof(b));
 	// 开启中断
     EA = 1;
@@ -328,6 +325,8 @@ void main(void) {
     // 上电延时，确保所有外设初始化成功
     Delay500ms();
     print_debug("uart Init\r\n");
+
+	
 //    
 //    while (1 == AT24CXX_Check()) { // EEPROM 不可以使用
 //        print_debug("AT error\r\n");
@@ -357,7 +356,7 @@ void main(void) {
 //    
 //    
     OLED_DisplayLogo();
-    OLED_Refresh_Gram();
+	OLED_Refresh_Gram();
     while (1) {
         RunKey();
         RunUser();

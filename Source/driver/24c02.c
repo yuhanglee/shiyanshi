@@ -70,7 +70,7 @@ uint32_t AT24CXX_ReadLenByte(uint16_t ReadAddr,uint8_t Len) {
 uint8_t AT24CXX_Check(void) {
 	uint8_t temp;
 	
-	temp=AT24CXX_ReadOneByte(EE_TYPE);/ 
+	temp=AT24CXX_ReadOneByte(EE_TYPE);
 
 	if (temp == 0x36) {
 		return 0;

@@ -11,8 +11,6 @@ char putchar(char c) {
 }
 void Uart1Isr(void) interrupt 4 using 0 {
     if (RI) {
-        ((uint8_t *)(TCB[0].ReadBuf))[TCB[0].ReadBufIndex++] = SBUF;
-        TCB[0].ReadBufIndex &= 0xffff;
         RI = 0;
     }
 }
