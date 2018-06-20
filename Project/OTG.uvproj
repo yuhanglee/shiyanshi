@@ -388,6 +388,11 @@
               <FileType>1</FileType>
               <FilePath>..\Source\system\iic.c</FilePath>
             </File>
+            <File>
+              <FileName>delay.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Source\system\delay.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

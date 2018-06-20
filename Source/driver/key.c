@@ -1,18 +1,9 @@
 #include "key.h"
 #include "timer.h"
 #include "led.h"
+#include "delay.h"
 
 
-
-static void Delay_ms(uint16_t Del_1ms) {
-	uint8_t j;
-    
-	while (Del_1ms--) {	
-		for (j  =0;j < 123;j++) {
-        
-        }
-	}
-}
 uint8_t old_key = 0xff;
 uint8_t KEY_Scan(void) {
     

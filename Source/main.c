@@ -13,6 +13,7 @@
 #include "led.h"
 #include "key.h"
 #include "botp.h"
+#include "delay.h"
 
 /****************************/
 // WCOS
@@ -20,21 +21,21 @@
 
 WCOS_TASK_CB TCB[5] = {0};
 
-uint8_t     _PadReadBuf[256]        = {0};
-uint8_t     _PadWriteBuf[256]       = {0};
+volatile uint8_t     _PadReadBuf[256]        = {0};
+volatile uint8_t     _PadWriteBuf[256]       = {0};
 
-uint8_t     _4851ReadBuf[256]       = {0};
-uint8_t     _4851WriteBuf[256]      = {0};
-uint32_t    _4851Data[4]            = {0};
+volatile uint8_t     _4851ReadBuf[256]       = {0};
+volatile uint8_t     _4851WriteBuf[256]      = {0};
+volatile uint32_t    _4851Data[4]            = {0};
 
-uint8_t     _4852ReadBuf[256]       = {0};
-uint8_t     _4852WriteBuf[256]      = {0};
+volatile uint8_t     _4852ReadBuf[256]       = {0};
+volatile uint8_t     _4852WriteBuf[256]      = {0};
 
-uint8_t     _4853ReadBuf[256]       = {0};
-uint8_t     _4853WriteBuf[256]      = {0};
+volatile uint8_t     _4853ReadBuf[256]       = {0};
+volatile uint8_t     _4853WriteBuf[256]      = {0};
 
-uint8_t     _DebugReadBuf[256]      = {0};
-uint8_t     _DebugWriteBuf[256]     = {0};
+volatile uint8_t     _DebugReadBuf[256]      = {0};
+volatile uint8_t     _DebugWriteBuf[256]     = {0};
 
 
 void TCB_Init(void) {
@@ -74,33 +75,6 @@ void TCB_Init(void) {
 }
 
 
-static void Delay_ms(uint16_t Del_1ms) {
-	uint8_t i, j;
-    
-	while (Del_1ms--) {	
-		i = 24;
-		j = 85;
-		do
-		{
-			while (--j);
-		} while (--i);
-	}
-}
-
-static void Delay500ms(void) {		//@24MHz 
-	unsigned char i, j, k;
-
-	i = 46;
-	j = 153;
-	k = 245;
-	do
-	{
-		do
-		{
-			while (--k);
-		} while (--j);
-	} while (--i);
-}
 void SystemInit(void) {
     SCON    = 0x00;
     S2CON   = 0x00;
@@ -221,94 +195,11 @@ void RunUser(void) {
 					for (i = 0;i < 256;i++) {
                         ((uint8_t *)(TCB[index].ReadBuf))[i] = 0x00;
                     }
-                } 
-                ExtDev_ClearDeviceTable();
+                }
 			}
 		}
     }
 }
-
-// 自检测
-//void BootSelfCheck(void) {
-//	OLED_Clear();
-//	OLED_DisplayHanziStr(0, 0, "存储检测", 0);
-//    //OLED_DisplayHanziStr(0, 2, "hello", 0);
-//    OLED_Refresh_Gram();
-//	
-//	Delay500ms();
-//	Delay500ms();
-//	if (0x01 == AT24CXX_Check()) {
-//		OLED_DisplayHanziStr(0, 1, "异常", 0);
-//	} else {
-//		OLED_DisplayHanziStr(0, 1, "OK  ", 0);
-//	}
-//	
-//    OLED_Refresh_Gram();
-//    while (1);
-//    
-//	/* OLED_DisplayStr(0, 1, "FLASH", 0);
-//	OLED_DisplayHanziStr(5, 1, "检测", 0);
-//    OLED_Refresh_Gram();
-//	
-//	Delay500ms();
-//	Delay500ms();
-//	if (0x01 == FLASH_Check()) {
-//		OLED_DisplayHanziStr(5, 1, "错误", 0);
-//	} else {
-//		OLED_DisplayHanziStr(5, 1, "正常", 0);
-//	} */
-//	while (0 == KEY_Scan());
-//}
-
-
-// 功能设置函数，在开机检测中进行
-//void BootSetMenu(void) {
-//    uint8_t key = 0;
-//	uint8_t index = 1;	
-//	
-//	OLED_DisplayHanziStr(0, 0, "自检测", 1);
-//	OLED_DisplayHanziStr(0, 1, "闪烁频率设置", 0);
-//    OLED_Refresh_Gram();
-//	
-//	while (1) {
-//		index = 1;
-//		// 按键控制
-//		key = KEY_Scan();
-//		if (key != 0x00) {
-//            print_debug("menu.value %bx\r\n", menu.value);
-//			switch (key) {
-//				case KEY_1:
-//					MenuFunc1();
-//				break;
-//				
-//				case KEY_2:
-//					MenuFunc2();
-//				break;
-//				
-//				case KEY_3:				// 进行确认
-//					MenuFunc3();
-//				break;
-//				
-//				case KEY_4:				
-//					if (MenuFunc4()) {	// 退出
-//						return ;
-//					}
-//				break;
-//			}
-//			// 更改屏幕显示
-//			OLED_Clear();
-//			if (BOOT_MENU == (menu.value & 0xf0)) { 
-//				OLED_DisplayHanziStr(0, 0, "自检测", 		(menu.value & 0x0f) == index++);
-//				OLED_DisplayHanziStr(0, 1, "闪烁频率设置", 	(menu.value & 0x0f) == index++);
-//			} else if (BOOT_MENU_FREQ_SET == (menu.value & 0xf0)) {
-//				OLED_DisplayHanziStr(0, 0, "低频设置", 		(menu.value & 0x0f) == index++);
-//				OLED_DisplayHanziStr(0, 1, "高频设置设置", 	(menu.value & 0x0f) == index++);
-//			}
-//            print_debug("menu.value %bx\r\n", menu.value);
-//			OLED_Refresh_Gram();
-//		}
-//	}
-//}
 
 void main(void) {
 	uint8_t value = 0;
@@ -322,41 +213,12 @@ void main(void) {
 	// 开启中断
     EA = 1;
     
-    // 上电延时，确保所有外设初始化成功
+    // 寤舵椂锛屼娇绯荤粺姝ｅ父鍚姩
     Delay500ms();
     print_debug("uart Init\r\n");
-
-	
-//    
-//    while (1 == AT24CXX_Check()) { // EEPROM 不可以使用
-//        print_debug("AT error\r\n");
-//        Delay500ms();
-//    }
-//    
-//    memset(&b, 0, sizeof(b));
-//    
-//    print_debug("正常\r\n");
-//    for (value = 0;value < 4;value++) {
-//        print_debug("%bx ", "正常"[value]);
-//    }
-//	while (1) {		// 开机进行设置
-//		value = KEY_Scan();
-//		
-//		if (KEY_4 == value) {	// 功能设置按键按下
-//			BootSetMenu();		// 执行功能设置函数
-//			break;
-//		}
-//		a++;
-//		Delay_ms(100);
-//		if (a >= 5) {	// 超时
-//			break;
-//		}
-//	}
-//	
-//    
-//    
-    OLED_DisplayLogo();
+	OLED_DisplayLogo();
 	OLED_Refresh_Gram();
+	
     while (1) {
         RunKey();
         RunUser();
