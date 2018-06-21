@@ -54,7 +54,7 @@
           <ListingPath>..\Output\</ListingPath>
           <HexFormatSelection>0</HexFormatSelection>
           <Merge32K>0</Merge32K>
-          <CreateBatchFile>0</CreateBatchFile>
+          <CreateBatchFile>1</CreateBatchFile>
           <BeforeCompile>
             <RunUserProg1>0</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
@@ -445,6 +445,11 @@
               <FileName>wc_string.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Source\wc_string.c</FilePath>
+            </File>
+            <File>
+              <FileName>crc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Source\crc.c</FilePath>
             </File>
           </Files>
         </Group>

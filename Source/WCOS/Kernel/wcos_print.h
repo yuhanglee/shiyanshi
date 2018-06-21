@@ -18,19 +18,19 @@
 
 #ifdef DEBUG_PRINT
     #ifdef PRINT_LEVEL <= WC_ERR_LEVEL
-        #define print_error(str)            printf("[*] error:\t%s\r\n", str)
+        #define printk_error            		printf("[*] error:\t");printf
     #endif
     
     #ifdef PRINT_LEVEL <= WC_INFO_LEVEL
-        #define print_info(str)             printf("[+] info:\t%s\r\n", str)
+        #define printk_info(str)             printf("[+] info:\t");printf
     #endif
     
     #ifdef PRINT_LEVEL <= WC_WARN_LEVEL
-        #define print_warn(str)             printf("[-] warning:\t%s\r\n", str);
+        #define printk_warn(str)             printf("[-] warning:\t");printf
     #endif
     
     #ifdef PRINT_LEVEL <= WC_DEBUG_LEVEL
-        #define print_debug(str)            printf("[-] debug:\t%s\r\n", str);
+        #define printk_debug(str)            printf("[-] debug:\t");printf
     #endif
 #endif
 

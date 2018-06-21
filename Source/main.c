@@ -14,6 +14,7 @@
 #include "key.h"
 #include "botp.h"
 #include "delay.h"
+#include "crc.h"
 
 /****************************/
 // WCOS
@@ -204,7 +205,9 @@ void RunUser(void) {
 void main(void) {
 	uint8_t value = 0;
     uint8_t a = 0;
-    
+	int i = 0;
+    BOTP * pb;
+	
     SystemInit();
     HardwareInit();
 	TCB_Init();		// 任务初始化
@@ -218,6 +221,26 @@ void main(void) {
     print_debug("uart Init\r\n");
 	OLED_DisplayLogo();
 	OLED_Refresh_Gram();
+/*
+	while (1) {
+		if (TCB[0].ReadBufIndex > 0) {
+			Delay_ms(3);
+			if (TCB[0].ReadBufIndex > 0x1A) {
+                pb = (BOTP *)(TCB[0].ReadBuf);
+                if (TCB[0].ReadBufIndex >= (pb->PackLen + 0x1C)) {
+                    Delay_ms(3);
+					//ret = BOTP_Exec(pb);
+	                print_debug("CRC = %X\r\n", CRC_16((uint8_t *)(&(pb->Pack)), pb->PackLen));
+					for (i = 0;i < TCB[0].ReadBufIndex;i++) {
+						print_debug("%02bX ", ((uint8_t *)TCB[0].ReadBuf)[i]);
+                    }
+					print_debug("\r\n");
+                    TCB[0].ReadBufIndex = 0;
+                }
+			}
+		}
+	}
+	*/
 	
     while (1) {
         RunKey();

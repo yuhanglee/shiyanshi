@@ -128,10 +128,10 @@
 #define PACK_TYPE_STRING		0x0D
 #define PACK_TYPE_TEXT			0x0E
 #define PACK_TYPE_OBJ			0x40
-#define PACK_TYPE_OBJ_NULL		(PACK_TYPE_OBJ + 1)
-#define PACK_TYPE_OBJ_NOT_NULL	(PACK_TYPE_OBJ + 2)
-#define PACK_TYPE_OBJ_NULL_STR	(PACK_TYPE_OBJ + 3)
-#define PACK_TYPE_OBJ_STR		(PACK_TYPE_OBJ + 4)
+#define PACK_TYPE_OBJ_NULL		(PACK_TYPE_OBJ + 0)
+#define PACK_TYPE_OBJ_NOT_NULL	(PACK_TYPE_OBJ + 1)
+#define PACK_TYPE_OBJ_NULL_STR	(PACK_TYPE_OBJ + 2)
+#define PACK_TYPE_OBJ_STR		(PACK_TYPE_OBJ + 3)
 #define PACK_TYPE_ARRAY_SMALL	0x80				// 最大长度       255 
 #define PACK_TYPE_ARRAY_LONG	0xA0				// 最大长度       65535 
 #define PACK_TYPE_CLCT_NULL		0xC0				
@@ -352,8 +352,6 @@ typedef struct {
     uint32_t    BUS;        //      总线        3bits 3*8=24bits
 } ExtDevInfo;
 
-uint16_t CRC16_Calc(char * CrcArray, uint16_t CrcLen);
-void CRC16_CreateTable(void);
 uint16_t BOTP_PackDataFill(Pack_t * p);
 void BOTP_Init(BOTP * botp, uint32_t SrcMacAddr, uint32_t DecMacAddr);
 uint8_t BOTP_PackExtTest(Pack_t * p, uint16_t len);
