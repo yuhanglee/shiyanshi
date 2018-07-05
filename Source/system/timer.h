@@ -79,10 +79,10 @@ extern uint16_t TimerDelayArray[];
 											0 \
 										)
 
-
-
-extern uint16_t t3_1;
+void Timer0_Init(uint16_t count);
+void Timer1_Init(uint16_t count);
 void Timer2_Init(uint16_t count);
-void Timer3_Init(Timer * tim);
+void Timer3_Init(uint16_t count);
+
 
 #endif

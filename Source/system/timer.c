@@ -1,129 +1,39 @@
 #include "timer.h"
 #include "led.h"
 
-#define BRT         (65536 - FOSC / 115200 / 4)
-
-uint16_t t3_1 = 0;
-
-uint16_t TimerDelayArray[e_TimMax] = {0};
-
-void TIM0_IRQ(void)         interrupt 1 {
-
-}
-    
-void TIM1_IRQ(void)         interrupt 3 {
-
-}
+#define BRT         (65536 - FOSC / 9600 / 4)
 
 
-void TIM2_IRQ(void)         interrupt 12 {
-    /* empty */
-}
-
-void TIM3_IRQ(void)         interrupt 19 {
-    AUXINTIF &= ~T3IF;                          //ÇåÖÐ¶Ï±êÖ¾
-}
-
-void TIM4_IRQ(void)         interrupt 20 {
-
-}
-
-
-
-/* ¹Ì¶¨ÎªÑÓÊ±1mS£¬Ê±¼ä±ÈËÀÑ­»·ÑÓÊ±Òª³¤ */
-void Timer3_Init(Timer * tim) {
-    uint8_t tmod_t = 0;
-    uint16_t count = 0;
-    
-    wc_assert(IS_TIMER_TYPE(tim->Type));
-    wc_assert(IS_TIMER_MODE(tim->Mode));
-    wc_assert(IS_TIMER_FREQ_DIV(tim->FreqDiv));
-    wc_assert(IS_TIMER_COUNT(tim->Count));
-
-    if (TIMER_TYPE_COUNT == tim->Type) {
-        TIMER3_COUNT();
-    } else {
-        tmod_t = TIMER3_GET_COUNT();
-        TMOD = 0x00;
-        TMOD = tmod_t;
-    }
-    if (TIMER_FREQ_DIV_12 == tim->FreqDiv) {
-        TIMER3_FREQ_ENABLE();
-    } else {
-        TIMER3_FREQ_DISABLE();
-    }
-    
-    count = CALC_COUNT(FOSC, tim->FreqDiv, tim->Count);
-//    TIMER3_TH(((count >> 8) & 0xff));
-//    TIMER3_TL((count & 0xff));
-	T3L = 0xA0;		//??????
-	T3H = 0xF6;		//??????
-    TIMER3_ENABLE();
+void Timer3_Init(uint16_t count) { 
+    TIMER3_TL(count & 0xff);
+    TIMER3_TH((count >> 8) & 0xff);
     TIMER3_RUN();
+    TIMER3_FREQ_DISABLE();
 }
-/* ¶¨Ê±Æ÷2ÊÇ¸ø´®¿Úµ±×ö²¨ÌØÂÊ·¢ÉúÆ÷µÄ£¬²»¿ÉÒÔÓÃ×÷ÆäËûÓÃÍ¾ 
- * Èç¹ûÐèÒªÊ¹ÓÃ 12T Ä£Ê½£¬ÔòÐèÒª¾§ÕñÎª 11.0592MHz£¬
- * 24MHz Ê¹ÓÃ12T Ä£Ê½£¬Îó²îÖµÌ«´ó£¬Ôì³É¶ÁÐ´Ê§°Ü
- */
+/* ç”¨ä½œæ³¢ç‰¹çŽ‡å‘ç”Ÿå™¨ */
 void Timer2_Init(uint16_t count) { 
-    TIMER2_TL(count &0xff);
+    TIMER2_TL(count & 0xff);
     TIMER2_TH((count >> 8) & 0xff);
     TIMER2_RUN();
-    TIMER2_FREQ_DISABLE();          // @24MHz
+    TIMER2_FREQ_DISABLE(); 
 }
 
-void Timer1_Init(Timer * tim) {
-    uint8_t tmod_t = 0;
-    uint16_t count = 0;
-    
-    wc_assert(IS_TIMER_TYPE(tim->Type));
-    wc_assert(IS_TIMER_MODE(tim->Mode));
-    wc_assert(IS_TIMER_FREQ_DIV(tim->FreqDiv));
-    wc_assert(IS_TIMER_COUNT(tim->Count));
-
-    if (TIMER_TYPE_COUNT == tim->Type) {
-        TIMER1_COUNT();
-    } else {
-        tmod_t = TIMER1_GET_COUNT();
-        TMOD = 0x00;
-        TMOD = tmod_t;
-    }
-    
-    TIMER1_MODE(tim->Mode);
-    if (TIMER_FREQ_DIV_12 == tim->FreqDiv) {
-        TIMER1_FREQ_ENABLE();
-    } else {
-        TIMER1_FREQ_DISABLE();
-    }
-    
-    count = CALC_COUNT(FOSC, tim->FreqDiv, tim->Count);
-    
-    TIMER1_TH(((count >> 8) & 0xff));
-    TIMER1_TL((count & 0xff));
+void Timer1_Init(uint16_t count) { 
+    TIMER1_TL(count & 0xff);
+    TIMER1_TH((count >> 8) & 0xff);
+    TIMER1_RUN();
+    TIMER1_FREQ_DISABLE();
 }
-
-void Timer_Init(uint8_t TimerNum, Timer * tim) {
-    wc_assert(IS_TIMER(TimerNum));
-    wc_assert(IS_TIMER_TYPE(tim->Type));
-    wc_assert(IS_TIMER_MODE(tim->Mode));
-    wc_assert(IS_TIMER_FREQ_DIV(tim->FreqDiv));
-    wc_assert(IS_TIMER_COUNT(tim->Count));
-    
-    switch (TimerNum) {
-        case Timer1:
-            break;
-        
-        case Timer2:
-            break;
-        
-        case Timer3:
-            break;
-        
-        case Timer4:
-            break;
-        
-        case Timer5:
-            break;
-    }
-    
+void Timer0_Init(uint16_t count) { 
+	TIMER0_MODE(0);
+	TIMER0_TL(count & 0xff);
+    TIMER0_TH((count >> 8) & 0xff);
+    TIMER0_RUN();
+    TIMER0_FREQ_DISABLE();
+    /*AUXR |= 0x80;		//å®šæ—¶å™¨æ—¶é’Ÿ1Tæ¨¡å¼
+	TMOD &= 0xF0;		//è®¾ç½®å®šæ—¶å™¨æ¨¡å¼
+	TL0 = 0xCD;		//è®¾ç½®å®šæ—¶åˆå€¼
+	TH0 = 0xD4;		//è®¾ç½®å®šæ—¶åˆå€¼
+	TF0 = 0;		//æ¸…é™¤TF0æ ‡å¿—
+	TR0 = 1;		//å®šæ—¶å™¨0å¼€å§‹è®¡æ—¶*/
 }
