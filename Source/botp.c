@@ -6,8 +6,8 @@
 //                           O\  =  /O
 //                        ____/`---'\____
 //                      .'  \\|     |//  `.
-//                     /  \\|||  :  |||//  \
-//                    /  _||||| -:- |||||-  \
+//                     /  \\|||  :  |||//  \ 
+//                    /  _||||| -:- |||||-  \ 
 //                    |   | \\\  -  /// |   |
 //                    | \_|  ''\---/''  |   |
 //                    \  .-\__  `-`  ___/-. /
@@ -87,15 +87,12 @@ void BOTP_PackAddItem(Pack_t * p, uint8_t index, uint8_t type, uint8_t * value, 
 #endif											
 
 
-ExtDev device[8] = {
+ExtDev device[5] = {
 	{{BUS_UART, MSG_TYPE_USER},     UART_PAD,       0x11111111},    // CH340
 	{{BUS_UART, MSG_TYPE_USER},     UART_485_1,     0x12345678},    // 4851
 	{{BUS_NET,  MSG_TYPE_USER},     UART_485_2,     0x00000000},    // 4852
 	{{BUS_NET,  MSG_TYPE_USER},     UART_485_3,     0x00000000},    // 4853
 	{{BUS_NET,  MSG_TYPE_USER},     UART_DEBUG,     0x00000000},    // debug
-	{{BUS_NET,  MSG_TYPE_USER},     0,  0x00000000},
-	{{BUS_NET,  MSG_TYPE_USER},     0,  0x00000000},
-	{{BUS_NET,  MSG_TYPE_USER},     0,  0x00000000},
 };
 
 void ExtDev_Init(ExtDev * Dev) {
@@ -268,8 +265,29 @@ uint8_t BOTP_Exec(BOTP * botp) {
         }
 		return BOTP_ERROR_DMAC_ADDR;
 	} else { // 是本机数据，进行解析
-		if (botp->Pack.Crc16 == CRC_16((uint8_t * )(&(botp->Pack)), botp->PackLen)) { 
-	        return BOTP_PackExtTest(&(botp->Pack), botp->PackLen);
+		//if (botp->Pack.Crc16 == CRC_16((uint8_t * )(&(botp->Pack)), botp->PackLen)) { 
+	    if (1) {
+			switch (BOTP_GetQuickCmd(*botp)) {
+				case QUICK_CMD_HEARTBEAT:
+
+				break;
+
+				case QUICK_CMD_INIT:
+
+				break;
+
+				case QUICK_CMD_BUS:
+
+				break;
+
+				case QUICK_CMD_UPDATE_MAC:
+					printf("dmac:%08x\r\n", BOTP_GetDMacAddr(*botp));
+				break;
+
+				default:
+					return BOTP_ERROR_UQICK_CMD;
+			}
+			return BOTP_GetQuickCmd(*botp);
 		} else {
 			print_debug("crc16 error\r\n");
 			return BOTP_ERROR_DATA_CRC16;
@@ -444,7 +462,7 @@ uint8_t BOTP_SendData(BOTP * b) {
                 case UART_485_1:
                 case UART_485_2:
                 case UART_485_3:
-                    MAX485_WriteHex(device[Index].Index, (uint8_t *)b, BOTP_GetPackLength(*b) + 0x1C);
+                    MAX485_WriteHex((uint8_t *)b, BOTP_GetPackLength(*b) + 0x1C);
 				break;
                 
 				default:

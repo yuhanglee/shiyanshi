@@ -3,24 +3,7 @@
 
 #include "mylib.h"
 
-
-
-
-enum {
-	Timer1 = 1,
-	Timer2 = 2,
-	Timer3 = 3,
-	Timer4 = 4,
-	Timer5 = 5,
-};
-
-#define IS_TIMER(timer)					(\
-											Timer1 == (timer) || \
-											Timer2 == (timer) || \
-											Timer3 == (timer) || \
-											Timer4 == (timer) || \
-											Timer5 == (timer)    \
-										)
+#define CALC_COUNT(t, n)				(t)?(0x10000 - FOSC / 1000000 * n):(0x10000 - FOSC / 120000000 * n)
 
 typedef enum {
 	TIMER_Mode_0 = 0,
@@ -66,23 +49,27 @@ typedef struct {
     uint16_t Count;
 } Timer;
 
-#define CALC_COUNT(f, t, n)				(t)?(0xFFFF - FOSC / n):(0xFFFF - FOSC / 12 / n)
 
-enum {
-	e_TimTest = 0,
-	e_TimMax,
-};
+#define e_TimTest		0
+#define e_TimMax		1
+
+
+
 extern uint16_t TimerDelayArray[];
-#define IS_TIME_OUT_1MS(index, count)	(\
-											TimerDelayArray[(index)] >= (count) ? \
-											(TimerDelayArray[(index)] = 0) == 0 : \
-											0 \
-										)
 
 
+#define IS_TIME_OUT_1MS(i, c)	( \
+									!(TimerDelayArray[(i)] & 0x8000) ? \
+									TimerDelayArray[(i)] = (c) | 0x8000 : \
+										!(TimerDelayArray[(i)] << 1) ? \
+										((TimerDelayArray[(i)] = 0) == 0) : \
+										0 \
+								)
 
-extern uint16_t t3_1;
+
+void Timer0_Init(uint16_t count);
+void Timer1_Init(uint16_t count);
 void Timer2_Init(uint16_t count);
-void Timer3_Init(Timer * tim);
+void Timer3_Init(uint16_t count);
 
 #endif

@@ -104,6 +104,12 @@
 #define QUICK_CMD_FIND			MSG_TYPE_ACK
 #define QUICK_CMD_CTRL			MSG_TYPE_CTRL
 #define QUICK_CMD_ERROR			MSG_TYPE_ERROR
+
+#define QUICK_CMD_HEARTBEAT		0x39
+#define QUICK_CMD_INIT			0x3A
+#define QUICK_CMD_BUS			0x3B
+#define QUICK_CMD_UPDATE_MAC	0x3C
+
 #define IS_QUICK_CMD(c)			(\
 									QUICK_CMD_USER 			== (c) || \
 									QUICK_CMD_TIMESTAMPS	== (c) || \

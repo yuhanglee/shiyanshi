@@ -6,13 +6,14 @@ uint8_t AT24CXX_ReadOneByte(uint16_t ReadAddr) {
 	uint8_t temp=0;		  	    																 
 
 	IIC_Start();  
-	if (EE_TYPE > AT24C16) {
+	#if (EE_TYPE > AT24C16) 
 		IIC_Send_Byte(WRITE);	   			// 发送设备地址和写信号
 		IIC_Wait_Ack();
 		IIC_Send_Byte(ReadAddr >> 8);		// 发送数据地址高8位
-	} else {
+	#else
 		IIC_Send_Byte(WRITE);   			// 发送设备地址和读信号
-	} 	   
+	#endif
+		
 	IIC_Wait_Ack(); 
     IIC_Send_Byte(ReadAddr & 0xff);   		// 发送数据地址低8位
 	IIC_Wait_Ack();	    
@@ -27,13 +28,14 @@ uint8_t AT24CXX_ReadOneByte(uint16_t ReadAddr) {
 void AT24CXX_WriteOneByte(uint16_t WriteAddr, uint8_t DataToWrite) {				   	  	    																 
     IIC_Start();  
 
-	if (EE_TYPE > AT24C16)	{
+	#if (EE_TYPE > AT24C16)
 		IIC_Send_Byte(WRITE);	    		// 发送设备地址和写信号
 		IIC_Wait_Ack();
 		IIC_Send_Byte(WriteAddr >> 8);		// 发送数据地址高8位
-	} else {
+	#else
 		IIC_Send_Byte(WRITE); 
-	}
+	#endif
+	
 	IIC_Wait_Ack();	   
     IIC_Send_Byte(WriteAddr & 0xff);
 	IIC_Wait_Ack(); 	 										  		   

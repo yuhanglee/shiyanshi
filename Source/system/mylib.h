@@ -29,10 +29,10 @@ typedef int32_t         s32;
 #define high    1
 
 
-//#define DEBUG
+#define DEBUG
 
 #ifdef DEBUG
-    #define DEBUG_PRINT                                 // ¶¨Òåµ÷ÊÔÊä³ö
+    #define DEBUG_PRINT                                 // å®šä¹‰è°ƒè¯•è¾“å‡º
 #endif
 
 
@@ -41,7 +41,7 @@ typedef int32_t         s32;
     #define print_info             printf
     #define print_warn             printf
     #define print_debug            printf
-#else 
+#else
 	#define print_error			   printf
 	#define print_info
 	#define print_warn
@@ -66,21 +66,20 @@ typedef int32_t         s32;
 #endif
 
 
-
-#define FOSC        (24000000UL) // ÄÚ²¿¾§ÕñÎª24MHz£¬Èç¹ûĞèÒªÊ¹ÓÃÍâ²¿µÄ11.0592MHz£¬ÔòĞèÒª¶ÔÓ²¼ş×öÒ»Ğ©¸Ä¶¯
-//#define FOSC        (11059200UL) // ÄÚ²¿¾§ÕñÎª24MHz£¬Èç¹ûĞèÒªÊ¹ÓÃÍâ²¿µÄ11.0592MHz£¬ÔòĞèÒª¶ÔÓ²¼ş×öÒ»Ğ©¸Ä¶¯
-
+// å†…éƒ¨æ™¶æŒ¯
+#define FOSC        (24000000UL)
+//#define FOSC        (11059200UL)
 
 
 #define CLEAR_FLAG(flag, num)           (AUXINTIF &= !(##flag##num##IF))
 
 
-/* GPIO ¶¨Òå */
+/* GPIO å®šä¹‰ */
 typedef enum {
-    GPIO_Mode_QB_Port = 0,      // Ë«ÏòÊä³ö
-    GPIO_Mode_Out_PP,           // ÍÆÍìÊä³ö
-    GPIO_Mode_Input,            // ¸ß×èÊäÈë
-    GPIO_Mode_OD_PP,            // ¿ªÂ©Êä³ö
+    GPIO_Mode_QB_Port = 0,      // åŒå‘è¾“å‡º
+    GPIO_Mode_Out_PP,           // æ¨æŒ½è¾“å‡º
+    GPIO_Mode_Input,            // é«˜ç¥–è¾“å…¥
+    GPIO_Mode_OD_PP,            // å¼€æ¼è¾“å‡º
 }GPIO_Mode_Type;
 
 #define GPIO_Mode(gpio, pin, mode)         \
@@ -154,7 +153,7 @@ do {\
 #define INT4_FALL()                     INT234_FALL(4)
 #define INT4_FALL_RIS()                 INT234_FALL_RIS(4)
 
-/* ¶¨Ê±Æ÷¶¨Òå */
+/* å®šæ—¶å™¨ */
 /* TCON */
 #define TCON_Set(mask)                  (TCON &= ~(mask);TCON |= (mask))
 
@@ -209,7 +208,7 @@ do {\
 #define TIMER4_RUN()                    T4T3M |= (T4R)
 #define TIMER4_STOP()                   T4T3M &= ~(T4R)
 
-/* T0_CT Èç¹ûÏë»Ö¸´¶¨Ê±Æ÷¹¦ÄÜ£¬ĞèÒª½«¸´Î»¼Ä´æÆ÷£¬ÖØĞÂ³õÊ¼»¯ */
+/* T0_CT å¦‚æœæƒ³æ¢å¤å®šæ—¶å™¨åŠŸèƒ½ï¼Œéœ€é‡æ–°åˆå§‹åŒ–è¯¥å¯„å­˜å™¨ */
 #define TIMER01_COUNT(x)                TMOD |= T##x##_CT
 #define TIMER01_GET_COUNT(x)			(TMOD & (~(T##x##_CT)))
 
@@ -230,7 +229,7 @@ do {\
 
 #define TIMER3_GET_COUNT()				TIMER34_GET_COUNT(3)
 #define TIMER4_GET_COUNT()				TIMER34_GET_COUNT(4)
-/* MODE Ä£Ê½¹²·ÖÎª4ÖÖ£¬ĞèÒª¿´ÊÖ²á */
+/* MODE 4ç§æ¨¡å¼ï¼Œè¯¦æƒ…çœ‹æ‰‹å†Œ */
 #define TIMER01_MODE(x, num)            do {\
                                             TMOD = ((num) & 0x01) ? \
 												TMOD | (T##x##_M0) : \
@@ -243,14 +242,14 @@ do {\
 #define TIMER0_MODE(num)                TIMER01_MODE(0, num)
 #define TIMER1_MODE(num)                TIMER01_MODE(1, num)
 
-/* ÊÇ·ñ·ÖÆµ ·ÖÆµÖ»ÄÜÊÇ12·ÖÆµ */                                        
+/* æ˜¯å¦12åˆ†é¢‘ */                                        
 #define TIMER012_FREQ_ENABLE(n)         AUXR &= ~(T##n##x12)   
 #define TIMER012_FREQ_DISABLE(n)        AUXR |= T##n##x12
                                         
 #define TIMER34_FREQ_ENABLE(n)          T4T3M &= ~(T##n##x12)
 #define TIMER34_FREQ_DISABLE(n)         T4T3M |= T##n##x12
 
-/* ¶ÁÈ¡ÊÇ·ñ·ÖÆµ£¬¼ÆËãÖØÔØÖµÊ±£¬ĞèÒª¶ÁÈ¡ */
+/* è¯»å–åˆ†é¢‘ç³»æ•° */
 #define TIMER012_FREQ(n)                (AUXR & T##n##x12)
 
 #define TIMER34_FREQ(n)                (T4T3M & T##n##x12)            
@@ -278,7 +277,7 @@ do {\
 #define TIMER3_FREQ()                   TIMER34_FREQ(3)
 #define TIMER4_FREQ()                   TIMER34_FREQ(4)
 
-/* ¶¨Ê±Æ÷Êä³ö */
+/* å®šæ—¶å™¨è¾“å‡º */
 #define TIMER012_OUT_ENABLE(x)          INTCLKO |= T##x##CLKO
 #define TIMER012_OUT_DISABLE(x)         INTCLKO &= ~(T##x##CLKO)
 
