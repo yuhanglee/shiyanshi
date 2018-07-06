@@ -55,15 +55,15 @@ typedef struct {
 
 
 
-extern uint16_t TimerDelayArray[];
+extern volatile uint16_t TimerDelayArray[];
 
 
 #define IS_TIME_OUT_1MS(i, c)	( \
 									!(TimerDelayArray[(i)] & 0x8000) ? \
 									TimerDelayArray[(i)] = (c) | 0x8000 : \
 										!(TimerDelayArray[(i)] << 1) ? \
-										((TimerDelayArray[(i)] = 0) == 0) : \
-										0 \
+										((TimerDelayArray[(i)] = 0) != 0) : \
+										1 \
 								)
 
 

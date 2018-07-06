@@ -1,7 +1,9 @@
 #include "stc8.h"
 #include "mylib.h"
 #include "intrins.h"
+#include "LCD.h"
 #include "uart.h"
+#include "UartLcd.h"
 #include "string.h"
 #include "24c02.h"
 #include "max485.h"
@@ -58,29 +60,55 @@ void SystemInit(void) {
 
 void HardwareInit(void) {
 	Timer0_Init(CALC_COUNT(1,1000));
+	KEY_Init();
     UartInit();     // uart 1 
-    MAX485_Init();  // uart 2 
-    Uart3Init();    // uart 3
-    
+    MAX485_Init();  // uart 3
+    Uart2Init();    // uart 2
+    UartLcdInit();	// uart 4
 }
 
 BOTP b; // 保存 led 的数据
-void RunKey(void) {   
+
+extern uint16_t UartLcdCmdStrIndex;
+extern char 	UartLcdCmdStr[];    // 串口屏读写缓冲区
+void RunKeyUartLcd(void) {   
 	int i = 0;
     uint8_t key = 0;
     
     key = KEY_Scan();
-    if (key != 0x00) {
-        switch (key) {
-        }
-        b.Msg.BusID = device[1].Msg.BusID;
-        b.Msg.Type  = device[1].Msg.Type;
-        BOTP_SendData(&b);
-        
-        for (i = 0;i < 128;i++) {
-            print_debug("%bx ", ((uint8_t *)(&b))[i]);
-        }
-    }
+    if (key != KEY_ERROR) {
+		print_debug("%d", key);
+		switch (key) {
+			case KEY_UP: 
+				printf("up\r\n");
+				UartLcdCmdStrIndex = LCD_ChooseUp(UartLcdCmdStr, UartLcdCmdStrIndex);
+			break;
+				
+
+			case KEY_DOWN:
+				printf("down\r\n");
+				UartLcdCmdStrIndex = LCD_ChooseDown(UartLcdCmdStr, UartLcdCmdStrIndex);
+			break;
+
+			case KEY_LIFT:
+				printf("lift\r\n");
+				UartLcdCmdStrIndex = LCD_ChooseLeft(UartLcdCmdStr, UartLcdCmdStrIndex);
+			break;
+
+			case KEY_RIGHT:
+				printf("right\r\n");
+				UartLcdCmdStrIndex = LCD_ChooseRight(UartLcdCmdStr, UartLcdCmdStrIndex);
+			break;
+
+			case KEY_OK:
+				printf("ok\r\n");
+				UartLcdCmdStrIndex = LCD_ChooseOK(UartLcdCmdStr, UartLcdCmdStrIndex);
+			break;
+		}
+		UartLcdSendStr(UartLcdCmdStr);
+		UartLcdCmdStrIndex = 0;
+		printf("cur:%02bu\r\n", CurCoorIndex);
+	}
 }
 
 void RunUser(void) {
@@ -124,21 +152,14 @@ void main(void) {
 	// 开启中断
     EA = 1;
     
+	UartLcdSendStr("SPG(2);"); // 直接跳转到第二页
     // 延时，使系统正常启动
-    Delay500ms();
+   	while (IS_TIME_OUT_1MS(e_TimTest, 500));
     print_debug("uart Init\r\n");
 
 	
     while (1) {
-		if (IS_TIME_OUT_1MS(e_TimTest, 1000) == 1) {
-			printf("time out test\r\n");
-		}
+		RunKeyUartLcd();
+		RunUser();
 	}
-
-	
-	
-    while (1) {
-        RunKey();
-        RunUser();
-    }
 }

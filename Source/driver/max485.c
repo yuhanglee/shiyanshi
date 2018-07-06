@@ -13,7 +13,7 @@ void Delay50us() {		//@24.000MHz
 }
 
 void MAX485_Init(void) {
-    Uart4Init();
+    Uart3Init();
 	MAX485_EN = 0;
 }
 

@@ -1,7 +1,7 @@
 #include "timer.h"
 
 
-uint16_t TimerDelayArray[e_TimMax];
+volatile uint16_t TimerDelayArray[e_TimMax];
 
 static uint8_t DelayIndex;
 

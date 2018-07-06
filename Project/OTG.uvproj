@@ -379,11 +379,6 @@
               <FilePath>..\Source\system\timer.c</FilePath>
             </File>
             <File>
-              <FileName>led.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Source\driver\led.c</FilePath>
-            </File>
-            <File>
               <FileName>iic.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Source\system\iic.c</FilePath>
@@ -404,24 +399,24 @@
               <FilePath>..\Source\driver\max485.c</FilePath>
             </File>
             <File>
-              <FileName>gt20.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Source\driver\gt20.c</FilePath>
-            </File>
-            <File>
               <FileName>key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Source\driver\key.c</FilePath>
             </File>
             <File>
-              <FileName>oled.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Source\driver\oled.c</FilePath>
-            </File>
-            <File>
               <FileName>24c02.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Source\driver\24c02.c</FilePath>
+            </File>
+            <File>
+              <FileName>LCD.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Source\driver\LCD.c</FilePath>
+            </File>
+            <File>
+              <FileName>UartLcd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Source\driver\UartLcd.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -442,29 +437,11 @@
               <FilePath>..\Source\botp.c</FilePath>
             </File>
             <File>
-              <FileName>wc_string.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Source\wc_string.c</FilePath>
-            </File>
-            <File>
               <FileName>crc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Source\crc.c</FilePath>
             </File>
           </Files>
-        </Group>
-        <Group>
-          <GroupName>OS_Kernel</GroupName>
-          <Files>
-            <File>
-              <FileName>wcos_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Source\WCOS\Kernel\wcos_task.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>OS_App</GroupName>
         </Group>
       </Groups>
     </Target>

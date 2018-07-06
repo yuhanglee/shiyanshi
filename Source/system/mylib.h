@@ -28,11 +28,13 @@ typedef int32_t         s32;
 #define low     0
 #define high    1
 
+#define FLOAT_EQ(f1, f2) 					(((f1) - (f2)) < 0.001 && ((f2) - (f1)) < 0.001)
 
-#define DEBUG
+
+//#define DEBUG
 
 #ifdef DEBUG
-    #define DEBUG_PRINT                                 // 定义调试输出
+    #define DEBUG_PRINT                                 // ����������
 #endif
 
 
@@ -41,7 +43,8 @@ typedef int32_t         s32;
     #define print_info             printf
     #define print_warn             printf
     #define print_debug            printf
-#else
+#else 
+
 	#define print_error			   printf
 	#define print_info
 	#define print_warn
@@ -66,20 +69,21 @@ typedef int32_t         s32;
 #endif
 
 
-// 内部晶振
-#define FOSC        (24000000UL)
-//#define FOSC        (11059200UL)
+
+#define FOSC        (24000000UL) // �ڲ�����Ϊ24MHz�������Ҫʹ���ⲿ��11.0592MHz������Ҫ��Ӳ����һЩ�Ķ�
+//#define FOSC        (11059200UL) // �ڲ�����Ϊ24MHz�������Ҫʹ���ⲿ��11.0592MHz������Ҫ��Ӳ����һЩ�Ķ�
+
 
 
 #define CLEAR_FLAG(flag, num)           (AUXINTIF &= !(##flag##num##IF))
 
 
-/* GPIO 定义 */
+/* GPIO ���� */
 typedef enum {
-    GPIO_Mode_QB_Port = 0,      // 双向输出
-    GPIO_Mode_Out_PP,           // 推挽输出
-    GPIO_Mode_Input,            // 高祖输入
-    GPIO_Mode_OD_PP,            // 开漏输出
+    GPIO_Mode_QB_Port = 0,      // ˫�����
+    GPIO_Mode_Out_PP,           // �������
+    GPIO_Mode_Input,            // ��������
+    GPIO_Mode_OD_PP,            // ��©���
 }GPIO_Mode_Type;
 
 #define GPIO_Mode(gpio, pin, mode)         \
@@ -101,7 +105,7 @@ do {\
 #define NCS_Set(gpio, pin)              ((##gpio##NCS) |= (1 << (pin)))
 #define NCS_Reset(gpio, pin)            ((##gpio##NCS) &= (~(` << (pin))))
 
-/* �ⲿ�ж� */
+/* �ⲿ�ж� */
 #define INT_01_ENABLE(num)              (EX##num = 1)
 #define INT_01_DISABLE(num)             (EX##num = 0) 
 
@@ -153,7 +157,7 @@ do {\
 #define INT4_FALL()                     INT234_FALL(4)
 #define INT4_FALL_RIS()                 INT234_FALL_RIS(4)
 
-/* 定时器 */
+/* ��ʱ������ */
 /* TCON */
 #define TCON_Set(mask)                  (TCON &= ~(mask);TCON |= (mask))
 
@@ -208,7 +212,7 @@ do {\
 #define TIMER4_RUN()                    T4T3M |= (T4R)
 #define TIMER4_STOP()                   T4T3M &= ~(T4R)
 
-/* T0_CT 如果想恢复定时器功能，需重新初始化该寄存器 */
+/* T0_CT �����ָ���ʱ�����ܣ���Ҫ����λ�Ĵ��������³�ʼ�� */
 #define TIMER01_COUNT(x)                TMOD |= T##x##_CT
 #define TIMER01_GET_COUNT(x)			(TMOD & (~(T##x##_CT)))
 
@@ -229,7 +233,7 @@ do {\
 
 #define TIMER3_GET_COUNT()				TIMER34_GET_COUNT(3)
 #define TIMER4_GET_COUNT()				TIMER34_GET_COUNT(4)
-/* MODE 4种模式，详情看手册 */
+/* MODE ģʽ����Ϊ4�֣���Ҫ���ֲ� */
 #define TIMER01_MODE(x, num)            do {\
                                             TMOD = ((num) & 0x01) ? \
 												TMOD | (T##x##_M0) : \
@@ -242,14 +246,14 @@ do {\
 #define TIMER0_MODE(num)                TIMER01_MODE(0, num)
 #define TIMER1_MODE(num)                TIMER01_MODE(1, num)
 
-/* 是否12分频 */                                        
+/* �Ƿ��Ƶ ��Ƶֻ����12��Ƶ */                                        
 #define TIMER012_FREQ_ENABLE(n)         AUXR &= ~(T##n##x12)   
 #define TIMER012_FREQ_DISABLE(n)        AUXR |= T##n##x12
                                         
 #define TIMER34_FREQ_ENABLE(n)          T4T3M &= ~(T##n##x12)
 #define TIMER34_FREQ_DISABLE(n)         T4T3M |= T##n##x12
 
-/* 读取分频系数 */
+/* ��ȡ�Ƿ��Ƶ����������ֵʱ����Ҫ��ȡ */
 #define TIMER012_FREQ(n)                (AUXR & T##n##x12)
 
 #define TIMER34_FREQ(n)                (T4T3M & T##n##x12)            
@@ -277,7 +281,7 @@ do {\
 #define TIMER3_FREQ()                   TIMER34_FREQ(3)
 #define TIMER4_FREQ()                   TIMER34_FREQ(4)
 
-/* 定时器输出 */
+/* ��ʱ����� */
 #define TIMER012_OUT_ENABLE(x)          INTCLKO |= T##x##CLKO
 #define TIMER012_OUT_DISABLE(x)         INTCLKO &= ~(T##x##CLKO)
 
